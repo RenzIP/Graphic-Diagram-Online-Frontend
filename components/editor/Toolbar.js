@@ -12,7 +12,7 @@ import { exportDSL, exportJPG, exportJSON, exportPNG, exportSVG, exportWebP } fr
 import { serializeToText } from '../../lib/dsl/serializer.js';
 import { alignNodes, distributeNodes } from '../../lib/utils/layout.js';
 
-export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart', onTitleChange, svgRef, isDirty = false, isSaving = false, lastSavedAt = null }) {
+export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart', onTitleChange, svgRef, isDirty = false, isSaving = false, lastSavedAt = null, backHref = '/dashboard' }) {
 	const canvas = useStore(canvasStore);
 	const history = useStore(historyStore);
 	const selection = useStore(selectionStore);
@@ -59,7 +59,7 @@ export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart',
 	return (
 		<div className="flex h-12 items-center justify-between border-b border-slate-800 bg-slate-900 px-4">
 			<div className="flex items-center gap-3">
-				<a href="/dashboard" className="flex items-center gap-2 text-slate-400 transition-colors hover:text-white" aria-label="Back to Dashboard">←</a>
+				<a href={backHref} className="flex items-center gap-2 text-slate-400 transition-colors hover:text-white" aria-label="Back to Dashboard">←</a>
 				<div className="h-5 w-px bg-slate-700"></div>
 				{editingTitle ? (
 					<input type="text" value={titleInput} onChange={(e) => setTitleInput(e.target.value)} onBlur={handleTitleSave} onKeyDown={(e) => { if (e.key === 'Enter') handleTitleSave(); }} className="rounded border border-indigo-500 bg-slate-800 px-2 py-0.5 text-sm text-white focus:outline-none" autoFocus />

@@ -37,6 +37,11 @@ export default function DashboardPage() {
 	const [creatingDiagram, setCreatingDiagram] = useState(false);
 
 	useEffect(() => {
+		const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+		if (!token) {
+			setLoading(false);
+			return;
+		}
 		Promise.all([documentsApi.recent(10), workspacesApi.list({ per_page: 50 })])
 			.then(([recentRes, wsRes]) => {
 				setRecentDocs(recentRes ?? []);
@@ -58,6 +63,13 @@ export default function DashboardPage() {
 	}, [recentDocs, searchQuery]);
 
 	async function createDiagram(typeId) {
+		const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+		if (!token) {
+			const localId = 'local-' + Date.now();
+			setShowNewDiagramModal(false);
+			window.location.href = `/editor/${localId}?type=${typeId}`;
+			return;
+		}
 		if (!selectedWorkspaceId) {
 			setShowNewDiagramModal(false);
 			setShowNewWorkspaceModal(true);
@@ -171,27 +183,43 @@ export default function DashboardPage() {
 			<Modal open={showNewDiagramModal} onClose={() => setShowNewDiagramModal(false)}>
 				<div className="p-6">
 					<h3 className="mb-4 text-lg font-semibold text-white">Create New Diagram</h3>
-					{workspaces.length === 0 ? (
-						<p className="mb-4 text-sm text-slate-400">You need a workspace first. <button className="text-indigo-400 hover:text-indigo-300" onClick={() => { setShowNewDiagramModal(false); setShowNewWorkspaceModal(true); }}>Create one</button></p>
-					) : (
-						<>
-							<div className="mb-4 space-y-3">
-								<Input label="Title" placeholder="Untitled" value={newDiagramTitle} onChange={setNewDiagramTitle} />
-								<div>
-									<label htmlFor="ws-select" className="mb-1 block text-sm text-slate-400">Workspace</label>
-									<select id="ws-select" value={selectedWorkspaceId} onChange={(e) => setSelectedWorkspaceId(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none">
-										{workspaces.map((ws) => <option key={ws.id} value={ws.id}>{ws.name}</option>)}
-									</select>
+					{(() => {
+						const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+						if (!token) {
+							return (
+								<>
+									<div className="mb-4">
+										<label className="mb-2 block text-sm text-slate-400">Diagram Type</label>
+										<div className="grid grid-cols-3 gap-2">
+											{DIAGRAM_TYPES.map((dt) => <button key={dt.id} className="flex flex-col items-center rounded-lg border border-slate-700 bg-slate-800 p-3 text-center transition-colors hover:border-indigo-500 hover:bg-slate-700" onClick={() => createDiagram(dt.id)}><span className="mb-1 text-xl">{dt.icon}</span><span className="text-xs text-slate-300">{dt.name}</span></button>)}
+										</div>
+									</div>
+								</>
+							);
+						}
+						if (workspaces.length === 0) {
+							return <p className="mb-4 text-sm text-slate-400">You need a workspace first. <button className="text-indigo-400 hover:text-indigo-300" onClick={() => { setShowNewDiagramModal(false); setShowNewWorkspaceModal(true); }}>Create one</button></p>;
+						}
+						return (
+							<>
+								<div className="mb-4 space-y-3">
+									<Input label="Title" placeholder="Untitled" value={newDiagramTitle} onChange={setNewDiagramTitle} />
+									<div>
+										<label htmlFor="ws-select" className="mb-1 block text-sm text-slate-400">Workspace</label>
+										<select id="ws-select" value={selectedWorkspaceId} onChange={(e) => setSelectedWorkspaceId(e.target.value)} className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none">
+											{workspaces.map((ws) => <option key={ws.id} value={ws.id}>{ws.name}</option>)}
+										</select>
+									</div>
 								</div>
-							</div>
-							<div className="mb-4">
-								<label className="mb-2 block text-sm text-slate-400">Diagram Type</label>
-								<div className="grid grid-cols-3 gap-2">
-									{DIAGRAM_TYPES.map((dt) => <button key={dt.id} className="flex flex-col items-center rounded-lg border border-slate-700 bg-slate-800 p-3 text-center transition-colors hover:border-indigo-500 hover:bg-slate-700" onClick={() => createDiagram(dt.id)} disabled={creatingDiagram}><span className="mb-1 text-xl">{dt.icon}</span><span className="text-xs text-slate-300">{dt.name}</span></button>)}
+								<div className="mb-4">
+									<label className="mb-2 block text-sm text-slate-400">Diagram Type</label>
+									<div className="grid grid-cols-3 gap-2">
+										{DIAGRAM_TYPES.map((dt) => <button key={dt.id} className="flex flex-col items-center rounded-lg border border-slate-700 bg-slate-800 p-3 text-center transition-colors hover:border-indigo-500 hover:bg-slate-700" onClick={() => createDiagram(dt.id)} disabled={creatingDiagram}><span className="mb-1 text-xl">{dt.icon}</span><span className="text-xs text-slate-300">{dt.name}</span></button>)}
+									</div>
 								</div>
-							</div>
-						</>
-					)}
+							</>
+						);
+					})()}
 				</div>
 			</Modal>
 

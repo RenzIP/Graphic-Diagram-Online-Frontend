@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-const PUBLIC_ROUTES = ['/', '/login', '/register', '/auth/callback', '/demo'];
+const PUBLIC_ROUTES = ['/', '/login', '/register', '/auth/callback', '/demo', '/dashboard'];
 
 export function proxy(request) {
 	const { pathname } = request.nextUrl;
@@ -8,6 +8,8 @@ export function proxy(request) {
 		PUBLIC_ROUTES.some((route) => pathname === route) ||
 		pathname.startsWith('/_next') ||
 		pathname.startsWith('/api') ||
+		pathname.startsWith('/editor/demo') ||
+		pathname.startsWith('/editor/local-') ||
 		pathname === '/favicon.svg' ||
 		pathname === '/robots.txt';
 

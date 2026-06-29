@@ -64,13 +64,8 @@ function EditorPageContent() {
 		setDiagramType(type);
 		if (!id) return;
 		initializedRef.current = false;
-		documentStore.load(id).then((found) => {
-			if (found) {
-				setIsApiDocument(true);
-				initializedRef.current = true;
-				setIsDirty(false);
-				return;
-			}
+
+		const initLocalDocument = () => {
 			const localKey = `diagram-${id}`;
 			const localData = localStorage.getItem(localKey);
 			if (localData) {
@@ -86,6 +81,21 @@ function EditorPageContent() {
 			if (DIAGRAM_TEMPLATES[type]) documentStore.set(JSON.parse(JSON.stringify(DIAGRAM_TEMPLATES[type])));
 			initializedRef.current = true;
 			setIsDirty(false);
+		};
+
+		if (id === 'demo' || id.startsWith('local-')) {
+			initLocalDocument();
+			return;
+		}
+
+		documentStore.load(id).then((found) => {
+			if (found) {
+				setIsApiDocument(true);
+				initializedRef.current = true;
+				setIsDirty(false);
+				return;
+			}
+			initLocalDocument();
 		});
 	}, [id, searchParams]);
 
@@ -151,7 +161,7 @@ function EditorPageContent() {
 
 	return (
 		<div className="flex h-screen w-screen flex-col overflow-hidden bg-slate-950 text-slate-200">
-			<Toolbar title={diagramTitle} diagramType={diagramType} onTitleChange={handleTitleChange} svgRef={svgRef} isDirty={isDirty} isSaving={isSaving} lastSavedAt={lastSavedAt} />
+			<Toolbar title={diagramTitle} diagramType={diagramType} onTitleChange={handleTitleChange} svgRef={svgRef} isDirty={isDirty} isSaving={isSaving} lastSavedAt={lastSavedAt} backHref={id === 'demo' || id.startsWith('local-') ? '/dashboard' : '/dashboard'} />
 			<div className="relative flex flex-1 overflow-hidden">
 				{isLeftSidebarOpen ? <EditorSidebar diagramType={diagramType} /> : null}
 				<main className="relative flex flex-1 flex-col bg-slate-950">
