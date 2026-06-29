@@ -1,0 +1,25 @@
+{
+	"name": "frontend",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint ."
+	},
+	"dependencies": {
+		"@supabase/ssr": "^0.8.0",
+		"next": "^16.0.0",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"tailwindcss": "^4.1.18"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "^4.1.18",
+		"eslint": "^9.39.2",
+		"eslint-config-next": "^16.0.0",
+		"postcss": "^8.5.6"
+	}
+}
