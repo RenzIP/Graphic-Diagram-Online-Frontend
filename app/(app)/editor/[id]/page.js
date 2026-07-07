@@ -14,10 +14,12 @@ import EditorSidebar from '../../../../components/editor/Sidebar.js';
 import Toolbar from '../../../../components/editor/Toolbar.js';
 import Toast from '../../../../components/ui/Toast.js';
 import NodeRenderer from '../../../../components/nodes/NodeRenderer.js';
+import VersionHistory from '../../../../components/editor/VersionHistory.js';
 import { DIAGRAM_TEMPLATES } from '../../../../lib/utils/templates.js';
 import { documentStore } from '../../../../lib/stores/document.js';
 import { historyStore } from '../../../../lib/stores/history.js';
 import { selectionStore } from '../../../../lib/stores/selection.js';
+import { wsClient } from '../../../../lib/ws/client.js';
 
 function EditorPageContent() {
 	const params = useParams();
@@ -33,6 +35,7 @@ function EditorPageContent() {
 	const [isSaving, setIsSaving] = useState(false);
 	const [lastSavedAt, setLastSavedAt] = useState(null);
 	const [isApiDocument, setIsApiDocument] = useState(false);
+	const [showVersionHistory, setShowVersionHistory] = useState(false);
 	const initializedRef = useRef(false);
 	const autosaveTimer = useRef(null);
 
@@ -93,6 +96,7 @@ function EditorPageContent() {
 				setIsApiDocument(true);
 				initializedRef.current = true;
 				setIsDirty(false);
+				wsClient.connect(id);
 				return;
 			}
 			initLocalDocument();
@@ -111,6 +115,7 @@ function EditorPageContent() {
 
 	useEffect(() => () => {
 		if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+		wsClient.disconnect();
 	}, []);
 
 	useEffect(() => {
@@ -161,7 +166,7 @@ function EditorPageContent() {
 
 	return (
 		<div className="flex h-screen w-screen flex-col overflow-hidden bg-slate-950 text-slate-200">
-			<Toolbar title={diagramTitle} diagramType={diagramType} onTitleChange={handleTitleChange} svgRef={svgRef} isDirty={isDirty} isSaving={isSaving} lastSavedAt={lastSavedAt} backHref={id === 'demo' || id.startsWith('local-') ? '/dashboard' : '/dashboard'} />
+			<Toolbar title={diagramTitle} diagramType={diagramType} onTitleChange={handleTitleChange} svgRef={svgRef} isDirty={isDirty} isSaving={isSaving} lastSavedAt={lastSavedAt} backHref={id === 'demo' || id.startsWith('local-') ? '/dashboard' : '/dashboard'} onToggleVersionHistory={() => setShowVersionHistory(v => !v)} />
 			<div className="relative flex flex-1 overflow-hidden">
 				{isLeftSidebarOpen ? <EditorSidebar diagramType={diagramType} /> : null}
 				<main className="relative flex flex-1 flex-col bg-slate-950">
@@ -173,6 +178,7 @@ function EditorPageContent() {
 						</Canvas>
 						<FloatingToolbar />
 						<Minimap />
+						<VersionHistory visible={showVersionHistory} onClose={() => setShowVersionHistory(false)} />
 						{!showDslEditor ? (
 							<div className="absolute right-0 bottom-0 left-0 z-20">
 								<button className="flex w-full items-center justify-between border-t border-slate-800 bg-slate-900/90 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-slate-800/90" onClick={() => setShowDslEditor(true)} aria-label="Open DSL Editor">

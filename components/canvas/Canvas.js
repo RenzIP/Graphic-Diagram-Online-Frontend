@@ -6,6 +6,7 @@ import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { selectionStore } from '../../lib/stores/selection.js';
 import { getSmoothPath } from '../../lib/utils/geometry.js';
+import { collaborationStore } from '../../lib/stores/collaboration.js';
 import Grid from './Grid';
 
 export default function Canvas({ children, onSvgRef }) {
@@ -21,7 +22,19 @@ export default function Canvas({ children, onSvgRef }) {
 	}, [onSvgRef]);
 
 	useEffect(() => {
+		let lastCursorSent = 0;
 		function onMove(event) {
+			// Throttle cursor updates (50ms)
+			const now = Date.now();
+			if (now - lastCursorSent > 50) {
+				const x = (event.clientX - canvas.x) / canvas.k;
+				const y = (event.clientY - canvas.y) / canvas.k;
+				import('../../lib/ws/client.js').then(({ wsClient }) => {
+					wsClient.send({ type: 'cursor_move', x, y });
+				});
+				lastCursorSent = now;
+			}
+
 			if (selectionBox.active) {
 				setSelectionBox((box) => ({ ...box, current: { x: (event.clientX - canvas.x) / canvas.k, y: (event.clientY - canvas.y) / canvas.k } }));
 				return;
@@ -106,6 +119,8 @@ export default function Canvas({ children, onSvgRef }) {
 	const boxW = Math.abs(selectionBox.current.x - selectionBox.start.x);
 	const boxH = Math.abs(selectionBox.current.y - selectionBox.start.y);
 
+	const collab = useStore(collaborationStore);
+
 	return (
 		<div className="relative h-full w-full overflow-hidden bg-slate-900">
 			<svg ref={svgRef} className="block h-full w-full cursor-crosshair touch-none active:cursor-grabbing" role="application" aria-label="Diagram Canvas" onWheel={handleWheel} onMouseDown={handleMouseDown}>
@@ -114,6 +129,21 @@ export default function Canvas({ children, onSvgRef }) {
 					{children}
 					{conn && startPos ? <path d={getSmoothPath(startPos, conn.mousePos, conn.sourceHandle, 'top')} className="pointer-events-none stroke-indigo-500 stroke-2" strokeDasharray="5,5" fill="none" /> : null}
 					{selectionBox.active ? <rect x={boxX} y={boxY} width={boxW} height={boxH} className="pointer-events-none fill-indigo-500/10 stroke-indigo-500 stroke-1" /> : null}
+					
+					{/* Remote Cursors */}
+					{Object.entries(collab?.cursors || {}).map(([userId, pos]) => {
+						const user = collab.users.find(u => u.id === userId);
+						if (!user) return null;
+						return (
+							<g key={userId} transform={`translate(${pos.x} ${pos.y})`} className="pointer-events-none transition-transform duration-75 ease-out">
+								{/* Cursor SVG icon */}
+								<path d="M0,0 L11,11 L4.8,11 L0,20 Z" fill={user.color} stroke="white" strokeWidth="1.5" />
+								{/* Name badge */}
+								<rect x="12" y="12" rx="4" width={(user.name || user.id).length * 7 + 10} height="20" fill={user.color} />
+								<text x="17" y="25" fontSize="10" fill="white" fontWeight="bold">{(user.name || user.id)}</text>
+							</g>
+						);
+					})}
 				</g>
 			</svg>
 			<div className="absolute right-4 bottom-4 rounded-md border border-slate-700 bg-slate-800 px-3 py-1 text-sm text-slate-300 shadow-lg">{Math.round(canvas.k * 100)}%</div>

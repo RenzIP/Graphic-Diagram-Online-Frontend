@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useStore } from '../../hooks/useStore.js';
 import Button from '../ui/Button.js';
 import Modal from '../ui/Modal.js';
+import AsciiImportModal from './AsciiImportModal.js';
+import ImportModal from './ImportModal.js';
+import PresenceBar from '../collaboration/PresenceBar.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { historyStore } from '../../lib/stores/history.js';
@@ -12,16 +15,19 @@ import { exportDSL, exportJPG, exportJSON, exportPNG, exportSVG, exportWebP } fr
 import { serializeToText } from '../../lib/dsl/serializer.js';
 import { alignNodes, distributeNodes } from '../../lib/utils/layout.js';
 
-export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart', onTitleChange, svgRef, isDirty = false, isSaving = false, lastSavedAt = null, backHref = '/dashboard' }) {
+export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart', onTitleChange, svgRef, isDirty = false, isSaving = false, lastSavedAt = null, backHref = '/dashboard', onToggleVersionHistory }) {
 	const canvas = useStore(canvasStore);
 	const history = useStore(historyStore);
 	const selection = useStore(selectionStore);
 	const [editingTitle, setEditingTitle] = useState(false);
 	const [titleInput, setTitleInput] = useState(title);
 	const [showExportModal, setShowExportModal] = useState(false);
+	const [showImportModal, setShowImportModal] = useState(false);
+	const [showAsciiModal, setShowAsciiModal] = useState(false);
 	const canAlign = selection.nodes.length >= 2;
 
 	function handleUndo() {
+
 		const state = historyStore.undo(documentStore.get());
 		if (state) documentStore.set(state);
 	}
@@ -84,9 +90,15 @@ export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart',
 				<button className="rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white" onClick={() => canvasStore.setZoom(Math.min(canvas.k + 0.25, 4))}>+</button>
 			</div>
 			<div className="flex items-center gap-2">
-				<button className="rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white" onClick={() => setShowExportModal(true)} title="Export">⇩</button>
+				<PresenceBar />
+				<div className="mx-1 h-5 w-px bg-slate-700"></div>
+				<button className="rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white" onClick={() => setShowAsciiModal(true)} title="Import ASCII Diagram">T</button>
+				<button className="rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white" onClick={() => setShowImportModal(true)} title="Import Diagram">⇧</button>
+				<button className="rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white" onClick={() => setShowExportModal(true)} title="Export Diagram">⇩</button>
+				<button className="rounded p-1.5 text-slate-400 transition-colors hover:bg-slate-800 hover:text-white" onClick={onToggleVersionHistory} title="Version History">🕒</button>
 				<Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving}>{isSaving ? 'Saving...' : 'Save'}</Button>
 			</div>
+			
 			<Modal open={showExportModal} title="Export Diagram" onClose={() => setShowExportModal(false)}>
 				<div className="grid grid-cols-2 gap-3 p-6">
 					{['png', 'jpg', 'webp', 'svg', 'json', 'dsl'].map((format) => (
@@ -96,6 +108,9 @@ export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart',
 					))}
 				</div>
 			</Modal>
+
+			<ImportModal open={showImportModal} onClose={() => setShowImportModal(false)} />
+			<AsciiImportModal open={showAsciiModal} onClose={() => setShowAsciiModal(false)} />
 		</div>
 	);
 }

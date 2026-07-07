@@ -65,7 +65,7 @@ export default function DashboardPage() {
 	async function createDiagram(typeId) {
 		const token = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
 		if (!token) {
-			const localId = 'local-' + Date.now();
+			const localId = 'local-' + crypto.randomUUID();
 			setShowNewDiagramModal(false);
 			window.location.href = `/editor/${localId}?type=${typeId}`;
 			return;
