@@ -3,12 +3,12 @@
 import { useState } from 'react';
 import { useStore } from '../../hooks/useStore.js';
 import { documentStore } from '../../lib/stores/document.js';
-import { selectionStore } from '../../lib/stores/selection.js';
+import * as SelectionModule from '../../lib/stores/selection.js';
 
 export default function PropertyPanel() {
 	const [activeTab, setActiveTab] = useState('style');
 	const document = useStore(documentStore);
-	const selection = useStore(selectionStore);
+	const selection = useStore(SelectionModule.selectionStore);
 	const selectedNodeId = selection.nodes[0];
 	const selectedEdgeId = selection.edges[0];
 	const selectedNode = selectedNodeId ? document.nodes.find((n) => n.id === selectedNodeId) : null;

@@ -10,7 +10,7 @@ import PresenceBar from '../collaboration/PresenceBar.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { historyStore } from '../../lib/stores/history.js';
-import { selectionStore } from '../../lib/stores/selection.js';
+import * as SelectionModule from '../../lib/stores/selection.js';
 import { exportDSL, exportJPG, exportJSON, exportPNG, exportSVG, exportWebP } from '../../lib/utils/export.js';
 import { serializeToText } from '../../lib/dsl/serializer.js';
 import { alignNodes, distributeNodes } from '../../lib/utils/layout.js';
@@ -18,7 +18,7 @@ import { alignNodes, distributeNodes } from '../../lib/utils/layout.js';
 export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart', onTitleChange, svgRef, isDirty = false, isSaving = false, lastSavedAt = null, backHref = '/dashboard', onToggleVersionHistory }) {
 	const canvas = useStore(canvasStore);
 	const history = useStore(historyStore);
-	const selection = useStore(selectionStore);
+	const selection = useStore(SelectionModule.selectionStore);
 	const [editingTitle, setEditingTitle] = useState(false);
 	const [titleInput, setTitleInput] = useState(title);
 	const [showExportModal, setShowExportModal] = useState(false);

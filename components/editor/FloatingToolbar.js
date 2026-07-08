@@ -2,12 +2,12 @@
 
 import { useStore } from '../../hooks/useStore.js';
 import { documentStore } from '../../lib/stores/document.js';
-import { selectionStore } from '../../lib/stores/selection.js';
+import * as SelectionModule from '../../lib/stores/selection.js';
 
 const colors = ['slate', 'red', 'green', 'amber', 'indigo', 'cyan', 'white'];
 
 export default function FloatingToolbar() {
-	const selection = useStore(selectionStore);
+	const selection = useStore(SelectionModule.selectionStore);
 	const document = useStore(documentStore);
 	if (selection.nodes.length === 0) return null;
 	const nodes = document.nodes.filter((node) => selection.nodes.includes(node.id));
@@ -21,7 +21,7 @@ export default function FloatingToolbar() {
 	}
 	function deleteNodes() {
 		selection.nodes.forEach((id) => documentStore.removeNode(id));
-		selectionStore.clear();
+		SelectionModule.selectionStore.clear();
 	}
 
 	return (

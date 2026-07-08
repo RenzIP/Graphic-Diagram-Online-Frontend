@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { getOrthogonalPath, getSmoothPath, getSmoothPolyline, getStraightPath } from '../../lib/utils/geometry.js';
 import { documentStore } from '../../lib/stores/document.js';
-import { selectionStore } from '../../lib/stores/selection.js';
+import * as SelectionModule from '../../lib/stores/selection.js';
 import { useStore } from '../../hooks/useStore.js';
 
 export default function BaseEdge({ edge, sourceNode, targetNode }) {
-	const selection = useStore(selectionStore);
+	const selection = useStore(SelectionModule.selectionStore);
 	const [isEditing, setIsEditing] = useState(false);
 	const sourceCenter = { x: sourceNode.position.x + (sourceNode.width || 100) / 2, y: sourceNode.position.y + (sourceNode.height || 50) / 2 };
 	const targetCenter = { x: targetNode.position.x + (targetNode.width || 100) / 2, y: targetNode.position.y + (targetNode.height || 50) / 2 };
@@ -29,7 +29,7 @@ export default function BaseEdge({ edge, sourceNode, targetNode }) {
 
 	function handleClick(e) {
 		e.stopPropagation();
-		selectionStore.selectEdge(edge.id, e.shiftKey);
+		SelectionModule.selectionStore.selectEdge(edge.id, e.shiftKey);
 	}
 
 	return (
