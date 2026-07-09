@@ -30,23 +30,72 @@ export default function PropertyPanel() {
 						{['style', 'text', 'arrange'].map((tab) => <button key={tab} className={`flex-1 py-2 text-xs font-medium capitalize transition-colors ${activeTab === tab ? 'border-b-2 border-indigo-500 bg-indigo-500/10 text-indigo-400' : 'text-slate-500 hover:bg-slate-800 hover:text-slate-300'}`} onClick={() => setActiveTab(tab)}>{tab}</button>)}
 					</div>
 					<div className="flex-1 space-y-6 overflow-y-auto p-4">
-						{activeTab === 'style' ? (
-							<div className="space-y-4">
-								<div className="space-y-2">
-									<label className="block text-xs font-semibold text-slate-400">Fill</label>
-									<div className="flex items-center gap-2"><input type="color" value={selectedNode.style?.fill || '#ffffff'} onChange={(e) => updateNodeStyle('fill', e.target.value)} className="h-8 w-8 cursor-pointer rounded border border-slate-600 bg-slate-800 p-0.5" /><span className="text-xs text-slate-500 uppercase">{selectedNode.style?.fill || '#ffffff'}</span></div>
-									<label className="flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" checked={!!selectedNode.style?.gradient} onChange={(e) => updateNodeStyle('gradient', e.target.checked)} />Gradient</label>
-								</div>
-								<hr className="border-slate-700/50" />
-								<div className="space-y-2">
-									<label className="block text-xs font-semibold text-slate-400">Border</label>
-									<div className="grid grid-cols-2 gap-2"><input type="color" value={selectedNode.style?.stroke || '#000000'} onChange={(e) => updateNodeStyle('stroke', e.target.value)} className="h-8 w-full cursor-pointer rounded border border-slate-600 bg-slate-800 p-0.5" /><input type="number" min="0" max="20" value={selectedNode.style?.strokeWidth ?? 2} onChange={(e) => updateNodeStyle('strokeWidth', +e.target.value)} className="h-8 w-full rounded border-slate-600 bg-slate-800 text-xs text-slate-200" /></div>
-									<select value={selectedNode.style?.strokeDasharray || 'none'} onChange={(e) => updateNodeStyle('strokeDasharray', e.target.value)} className="w-full rounded border-slate-600 bg-slate-800 py-1.5 text-xs text-slate-200"><option value="none">Solid</option><option value="5,5">Dashed</option><option value="2,2">Dotted</option></select>
-								</div>
-								<hr className="border-slate-700/50" />
-								<label className="flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" checked={!!selectedNode.style?.shadow} onChange={(e) => updateNodeStyle('shadow', e.target.checked)} />Drop Shadow</label>
-								<div className="flex items-center gap-2"><span className="w-12 text-xs text-slate-500">Opacity</span><input type="range" min="0" max="1" step="0.1" value={selectedNode.style?.opacity ?? 1} onChange={(e) => updateNodeStyle('opacity', +e.target.value)} className="h-1.5 flex-1 accent-indigo-500" /><span className="w-6 text-right text-xs text-slate-500">{Math.round((selectedNode.style?.opacity ?? 1) * 100)}%</span></div>
+					{activeTab === 'style' ? (
+						<div className="space-y-4">
+							<div className="space-y-2">
+								<label className="block text-xs font-semibold text-slate-400">Fill</label>
+								<div className="flex items-center gap-2"><input type="color" value={selectedNode.style?.fill || '#ffffff'} onChange={(e) => updateNodeStyle('fill', e.target.value)} className="h-8 w-8 cursor-pointer rounded border border-slate-600 bg-slate-800 p-0.5" /><span className="text-xs text-slate-500 uppercase">{selectedNode.style?.fill || '#ffffff'}</span></div>
+								<label className="flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" checked={!!selectedNode.style?.gradient} onChange={(e) => updateNodeStyle('gradient', e.target.checked)} />Gradient</label>
+								{selectedNode.style?.gradient && (
+									<>
+										<div className="flex items-center gap-2">
+											<span className="w-16 text-xs text-slate-500">Direction</span>
+											<select value={selectedNode.style?.gradientOrientation || 'vertical'} onChange={(e) => updateNodeStyle('gradientOrientation', e.target.value)} className="flex-1 rounded border border-slate-600 bg-slate-800 py-1.5 text-xs text-slate-200">
+												<option value="vertical">Top → Bottom</option>
+												<option value="horizontal">Left → Right</option>
+												<option value="diagonal">Diagonal</option>
+											</select>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="w-16 text-xs text-slate-500">Start</span>
+											<input type="color" value={selectedNode.style?.gradientStartColor || selectedNode.style?.stroke || '#000000'} onChange={(e) => updateNodeStyle('gradientStartColor', e.target.value)} className="h-7 w-7 cursor-pointer rounded border border-slate-600 bg-slate-800 p-0.5" />
+											<span className="text-xs text-slate-500 uppercase">{selectedNode.style?.gradientStartColor || selectedNode.style?.stroke || '#000000'}</span>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="w-16 text-xs text-slate-500">End</span>
+											<input type="color" value={selectedNode.style?.gradientEndColor || selectedNode.style?.fill || '#ffffff'} onChange={(e) => updateNodeStyle('gradientEndColor', e.target.value)} className="h-7 w-7 cursor-pointer rounded border border-slate-600 bg-slate-800 p-0.5" />
+											<span className="text-xs text-slate-500 uppercase">{selectedNode.style?.gradientEndColor || selectedNode.style?.fill || '#ffffff'}</span>
+										</div>
+									</>
+								)}
 							</div>
+							<hr className="border-slate-700/50" />
+							<div className="space-y-2">
+								<label className="block text-xs font-semibold text-slate-400">Border</label>
+								<div className="grid grid-cols-2 gap-2"><input type="color" value={selectedNode.style?.stroke || '#000000'} onChange={(e) => updateNodeStyle('stroke', e.target.value)} className="h-8 w-full cursor-pointer rounded border border-slate-600 bg-slate-800 p-0.5" /><input type="number" min="0" max="20" value={selectedNode.style?.strokeWidth ?? 2} onChange={(e) => updateNodeStyle('strokeWidth', +e.target.value)} className="h-8 w-full rounded border-slate-600 bg-slate-800 text-xs text-slate-200" /></div>
+								<select value={selectedNode.style?.strokeDasharray || 'none'} onChange={(e) => updateNodeStyle('strokeDasharray', e.target.value)} className="w-full rounded border-slate-600 bg-slate-800 py-1.5 text-xs text-slate-200"><option value="none">Solid</option><option value="5,5">Dashed</option><option value="2,2">Dotted</option></select>
+							</div>
+							<hr className="border-slate-700/50" />
+							<div className="space-y-2">
+								<label className="flex items-center gap-2 text-xs text-slate-400"><input type="checkbox" checked={!!selectedNode.style?.shadow} onChange={(e) => updateNodeStyle('shadow', e.target.checked)} />Drop Shadow</label>
+								{selectedNode.style?.shadow && (
+									<div className="ml-6 space-y-2">
+										<div className="flex items-center gap-2">
+											<span className="w-16 text-xs text-slate-500">Color</span>
+											<input type="color" value={selectedNode.style?.shadowColor || '#000000'} onChange={(e) => updateNodeStyle('shadowColor', e.target.value)} className="h-7 w-7 cursor-pointer rounded border border-slate-600 bg-slate-800 p-0.5" />
+											<span className="text-xs text-slate-500 uppercase">{selectedNode.style?.shadowColor || '#000000'}</span>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="w-16 text-xs text-slate-500">Opacity</span>
+											<input type="range" min="0" max="1" step="0.05" value={selectedNode.style?.shadowOpacity ?? 0.4} onChange={(e) => updateNodeStyle('shadowOpacity', +e.target.value)} className="h-1.5 flex-1 accent-indigo-500" />
+											<span className="w-8 text-right text-xs text-slate-500">{Math.round((selectedNode.style?.shadowOpacity ?? 0.4) * 100)}%</span>
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="w-16 text-xs text-slate-500">Blur</span>
+											<input type="number" min="0" max="30" step="1" value={selectedNode.style?.shadowBlur ?? 5} onChange={(e) => updateNodeStyle('shadowBlur', +e.target.value)} className="flex-1 rounded border border-slate-600 bg-slate-800 px-1.5 py-1 text-xs text-slate-200" />
+										</div>
+										<div className="flex items-center gap-2">
+											<span className="w-16 text-xs text-slate-500">Offset X</span>
+											<input type="number" min="-20" max="20" step="1" value={selectedNode.style?.shadowOffsetX ?? 0} onChange={(e) => updateNodeStyle('shadowOffsetX', +e.target.value)} className="flex-1 rounded border border-slate-600 bg-slate-800 px-1.5 py-1 text-xs text-slate-200" />
+											<span className="w-16 text-xs text-slate-500">Offset Y</span>
+											<input type="number" min="-20" max="20" step="1" value={selectedNode.style?.shadowOffsetY ?? 3} onChange={(e) => updateNodeStyle('shadowOffsetY', +e.target.value)} className="flex-1 rounded border border-slate-600 bg-slate-800 px-1.5 py-1 text-xs text-slate-200" />
+										</div>
+									</div>
+								)}
+							</div>
+							<hr className="border-slate-700/50" />
+							<div className="flex items-center gap-2"><span className="w-16 text-xs text-slate-500">Opacity</span><input type="range" min="0" max="1" step="0.1" value={selectedNode.style?.opacity ?? 1} onChange={(e) => updateNodeStyle('opacity', +e.target.value)} className="h-1.5 flex-1 accent-indigo-500" /><span className="w-8 text-right text-xs text-slate-500">{Math.round((selectedNode.style?.opacity ?? 1) * 100)}%</span></div>
+						</div>
 						) : activeTab === 'text' ? (
 							<div className="space-y-4">
 								<label className="block text-xs font-semibold text-slate-400">Label</label>
