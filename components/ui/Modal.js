@@ -1,5 +1,8 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
+
 const sizes = {
 	sm: 'max-w-md',
 	md: 'max-w-lg',
@@ -8,15 +11,23 @@ const sizes = {
 };
 
 export default function Modal({ open, onClose, title, children, size = 'md' }) {
-	if (!open) return null;
-	return (
-		<div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/72 p-4 backdrop-blur-md" onMouseDown={onClose}>
+	const [mounted, setMounted] = useState(false);
+
+	useEffect(() => {
+		setMounted(true);
+		return () => setMounted(false);
+	}, []);
+
+	if (!open || !mounted) return null;
+
+	return createPortal(
+		<div className="fixed inset-0 flex items-center justify-center bg-slate-950/72 p-4 backdrop-blur-md" style={{ zIndex: 2147483647 }} onMouseDown={onClose}>
 			<div
-				className={`modal-in glass-panel w-full rounded-[1.75rem] text-slate-200 ${sizes[size] ?? sizes.md}`}
+				className={`modal-in glass-panel max-h-[calc(100vh-2rem)] w-full overflow-y-auto rounded-[1.75rem] text-slate-200 ${sizes[size] ?? sizes.md}`}
 				onMouseDown={(e) => e.stopPropagation()}
 			>
 				{title ? (
-					<div className="flex items-center justify-between border-b border-white/8 px-6 py-5">
+					<div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/8 bg-[rgba(11,16,32,0.86)] px-6 py-5 backdrop-blur-md">
 						<div>
 							<p className="mb-1 text-[0.7rem] font-semibold uppercase tracking-[0.18em] text-slate-500">Dialog</p>
 							<h3 className="text-lg font-semibold text-white">{title}</h3>
@@ -30,6 +41,7 @@ export default function Modal({ open, onClose, title, children, size = 'md' }) {
 				) : null}
 				{children}
 			</div>
-		</div>
+		</div>,
+		document.body
 	);
 }

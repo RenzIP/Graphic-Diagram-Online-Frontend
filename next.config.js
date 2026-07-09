@@ -12,6 +12,7 @@ const nextConfig = {
 		return config;
 	},
 	turbopack: {
+		root: projectRoot,
 		resolveAlias: {
 			'@': projectRoot
 		}
