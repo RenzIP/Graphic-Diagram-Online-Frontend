@@ -18,6 +18,10 @@ export default function AsciiImportModal({ open, onClose }) {
 				setError('No valid ASCII boxes found. Try drawing a box like +---+');
 				return;
 			}
+			if (/[<>^vV]/.test(text) && parsed.edges.length === 0) {
+				setError('ASCII terdeteksi, tetapi koneksinya tidak bisa dibaca. Pastikan setiap box benar-benar tertutup, dan lebar border atas/bawah sama dengan baris `| label |`.');
+				return;
+			}
 			
 			// Replace current document with the imported ASCII diagram
 			// (Alternatively, we could append it, but replace is simpler for "Import")
@@ -35,12 +39,12 @@ export default function AsciiImportModal({ open, onClose }) {
 		<Modal open={open} title="Import ASCII Diagram" onClose={onClose} size="lg">
 			<div className="flex flex-col gap-4 p-6">
 				<p className="text-sm leading-6 text-slate-400">
-					Paste an ASCII diagram (like those from AsciiFlow) below. The parser looks for boxes drawn with <code>+</code>, <code>-</code>, and <code>|</code>, and connects them with lines ending in arrows (<code>&gt;</code>, <code>&lt;</code>, <code>v</code>, <code>^</code>).
+					Paste an ASCII diagram (like those from AsciiFlow) below. The parser looks for boxes drawn with <code>+</code>, <code>-</code>, and <code>|</code>, and connects them with lines ending in arrows (<code>&gt;</code>, <code>&lt;</code>, <code>v</code>, <code>^</code>). Box borders must be fully closed and match the text width exactly.
 				</p>
 				
 				<textarea
 					className="field h-64 w-full resize-none bg-[#09101d] p-4 font-mono text-xs text-slate-200"
-					placeholder="+---------+\n| Start   |---->\n+---------+    |\n               v\n           +-------+\n           | End   |\n           +-------+"
+					placeholder="+---------+    +----------+\n| Input   |--->| Validate |\n+---------+    +----------+\n                  |\n                  v\n             +-----------+\n             | Is Valid? |\n             +-----------+"
 					value={text}
 					onChange={(e) => setText(e.target.value)}
 					spellCheck="false"
