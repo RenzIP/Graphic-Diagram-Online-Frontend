@@ -34,12 +34,12 @@ export default function AsciiImportModal({ open, onClose }) {
 	return (
 		<Modal open={open} title="Import ASCII Diagram" onClose={onClose} size="lg">
 			<div className="flex flex-col gap-4 p-6">
-				<p className="text-sm text-slate-400">
+				<p className="text-sm leading-6 text-slate-400">
 					Paste an ASCII diagram (like those from AsciiFlow) below. The parser looks for boxes drawn with <code>+</code>, <code>-</code>, and <code>|</code>, and connects them with lines ending in arrows (<code>&gt;</code>, <code>&lt;</code>, <code>v</code>, <code>^</code>).
 				</p>
 				
 				<textarea
-					className="h-64 w-full resize-none rounded-lg border border-slate-700 bg-slate-900 p-4 font-mono text-xs text-slate-300 placeholder-slate-600 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+					className="field h-64 w-full resize-none bg-[#09101d] p-4 font-mono text-xs text-slate-200"
 					placeholder="+---------+\n| Start   |---->\n+---------+    |\n               v\n           +-------+\n           | End   |\n           +-------+"
 					value={text}
 					onChange={(e) => setText(e.target.value)}
@@ -47,7 +47,7 @@ export default function AsciiImportModal({ open, onClose }) {
 				/>
 
 				{error && (
-					<div className="rounded-md bg-red-500/10 p-3 text-sm text-red-400">
+					<div className="rounded-2xl border border-red-400/18 bg-red-500/10 p-3 text-sm text-red-100">
 						{error}
 					</div>
 				)}

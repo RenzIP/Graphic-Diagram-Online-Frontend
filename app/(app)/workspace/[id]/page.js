@@ -92,67 +92,105 @@ export default function WorkspacePage() {
 	}
 
 	return (
-		<div className="flex h-screen overflow-hidden bg-slate-950 text-slate-200">
+		<div className="page-shell">
 			<AppSidebar />
-			<main className="flex min-h-0 flex-1 flex-col overflow-hidden">
-				<header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800 bg-slate-950 px-8">
-					<div className="flex items-center gap-4">
-						<nav className="flex items-center text-sm text-slate-500">
-							<a href="/dashboard" className="transition-colors hover:text-white">Dashboard</a>
-							<svg className="mx-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
-							<span className="font-medium text-white">{workspace?.name ?? 'Workspace'}</span>
+			<main className="page-main">
+				<header className="page-header">
+					<div>
+						<nav className="flex items-center gap-2 text-sm text-slate-500">
+							<a href="/dashboard" className="hover:text-white">Dashboard</a>
+							<span>/</span>
+							<span className="text-slate-300">{workspace?.name ?? 'Workspace'}</span>
 						</nav>
+						<h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">{workspace?.name ?? 'Workspace'}</h1>
+						<p className="mt-2 text-sm leading-6 text-slate-400">{workspace?.description || 'Kelola project dan dokumen diagram dalam satu ruang kerja yang rapi dan siap kolaborasi.'}</p>
 					</div>
 					{workspace?.role === 'owner' || workspace?.role === 'editor' ? <Button variant="primary" size="sm" onClick={() => setShowNewProjectModal(true)}>New Project</Button> : null}
 				</header>
 
-				<div className="flex-1 overflow-y-auto p-8">
-					{workspace?.description ? <p className="mb-6 text-sm text-slate-400">{workspace.description}</p> : null}
-					<div className="mb-6 flex items-center justify-between">
-						<h1 className="text-2xl font-bold text-white">Projects</h1>
-						<span className="text-sm text-slate-500">{projects.length} project{projects.length !== 1 ? 's' : ''}</span>
+				<div className="page-content">
+					<div className="mb-8 grid gap-5 lg:grid-cols-3">
+						<div className="metric-card">
+							<div className="text-sm text-slate-400">Projects</div>
+							<div className="mt-4 text-3xl font-semibold text-white">{projects.length}</div>
+							<div className="mt-2 text-sm text-slate-500">Organized inside this workspace</div>
+						</div>
+						<div className="metric-card">
+							<div className="text-sm text-slate-400">Access role</div>
+							<div className="mt-4 text-3xl font-semibold capitalize text-white">{workspace?.role || 'viewer'}</div>
+							<div className="mt-2 text-sm text-slate-500">Current permission level</div>
+						</div>
+						<div className="metric-card">
+							<div className="text-sm text-slate-400">Workspace status</div>
+							<div className="mt-4 text-3xl font-semibold text-white">{loading ? '...' : 'Active'}</div>
+							<div className="mt-2 text-sm text-slate-500">Ready for new projects and documents</div>
+						</div>
 					</div>
+
+					<section className="mb-6 flex items-center justify-between">
+						<div>
+							<div className="section-kicker">
+								<span className="h-2 w-2 rounded-full bg-indigo-400"></span>
+								Project hub
+							</div>
+							<h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">Projects</h2>
+						</div>
+						<span className="rounded-full border border-white/8 bg-white/4 px-4 py-2 text-sm text-slate-400">{projects.length} project{projects.length !== 1 ? 's' : ''}</span>
+					</section>
+
 					{loading ? (
-						<div className="flex items-center justify-center py-16"><div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-indigo-500"></div><span className="ml-3 text-sm text-slate-500">Loading projects...</span></div>
+						<div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+							{Array.from({ length: 3 }).map((_, idx) => (
+								<div key={idx} className="surface-panel rounded-[1.75rem] p-6">
+									<div className="skeleton mb-6 h-12 w-12 rounded-2xl"></div>
+									<div className="skeleton mb-3 h-6 w-2/3 rounded-full"></div>
+									<div className="skeleton h-4 w-full rounded-full"></div>
+								</div>
+							))}
+						</div>
 					) : (
-						<div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+						<div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
 							{projects.map((project) => (
-								<Card key={project.id} className="group relative cursor-pointer overflow-hidden p-0 transition-colors hover:border-slate-600">
-									<div className="h-2 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 transition-opacity group-hover:opacity-100"></div>
+								<Card key={project.id} className="group relative cursor-pointer rounded-[1.75rem] p-0">
+									<div className="absolute inset-x-6 top-0 h-1 rounded-b-full bg-gradient-to-r from-indigo-400 via-violet-400 to-sky-400 opacity-70"></div>
 									<div className="p-6">
-										<div className="mb-4 flex items-start justify-between">
-											<div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400"></div>
-											<div className="flex gap-1">
-												<button className="rounded p-1 text-slate-500 transition-colors hover:bg-slate-800 hover:text-indigo-400" title="Add document" onClick={(e) => { e.stopPropagation(); setNewDocProjectId(project.id); setShowNewDocModal(true); }}>+</button>
-												<button className="rounded p-1 text-slate-500 transition-colors hover:bg-slate-800 hover:text-red-400" title="Delete project" onClick={(e) => { e.stopPropagation(); deleteProject(project.id, project.name); }}>×</button>
+										<div className="mb-5 flex items-start justify-between">
+											<div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-500/25 to-sky-500/20 text-white shadow-[0_16px_30px_rgba(99,102,241,0.18)]">
+												<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+												</svg>
+											</div>
+											<div className="flex gap-2">
+												<button className="rounded-xl border border-white/8 bg-white/5 px-3 py-2 text-xs text-slate-300 hover:border-indigo-400/30 hover:bg-indigo-500/10 hover:text-white" title="Add document" onClick={(e) => { e.stopPropagation(); setNewDocProjectId(project.id); setShowNewDocModal(true); }}>New doc</button>
+												<button className="rounded-xl border border-red-400/16 bg-red-500/8 px-3 py-2 text-xs text-red-100 hover:border-red-300/24 hover:bg-red-500/12" title="Delete project" onClick={(e) => { e.stopPropagation(); deleteProject(project.id, project.name); }}>Delete</button>
 											</div>
 										</div>
-										<h3 className="mb-1 text-lg font-bold text-white transition-colors group-hover:text-indigo-400">{project.name}</h3>
-										{project.description ? <p className="mb-2 line-clamp-2 text-sm text-slate-400">{project.description}</p> : null}
-										<div className="flex items-center gap-4 text-sm text-slate-500">
+										<h3 className="text-xl font-semibold tracking-tight text-white">{project.name}</h3>
+										{project.description ? <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-400">{project.description}</p> : <p className="mt-3 text-sm leading-6 text-slate-500">No project description added yet.</p>}
+										<div className="mt-6 flex items-center justify-between text-sm text-slate-500">
 											<span>{project.document_count} document{project.document_count !== 1 ? 's' : ''}</span>
 											<span>Updated {timeAgo(project.updated_at)}</span>
 										</div>
 									</div>
 								</Card>
 							))}
-							<button className="flex h-full min-h-[160px] cursor-pointer flex-col items-center justify-center gap-4 rounded-2xl border-2 border-dashed border-slate-800 p-6 text-slate-500 transition-all hover:border-indigo-500/50 hover:bg-slate-900/50 hover:text-indigo-400" onClick={() => setShowNewProjectModal(true)}>
-								<div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-800">+</div>
-								<span className="font-medium">Create New Project</span>
+							<button className="surface-panel flex min-h-[220px] flex-col items-center justify-center rounded-[1.75rem] border-dashed p-6 text-center hover:-translate-y-1 hover:border-indigo-400/24 hover:bg-indigo-500/8" onClick={() => setShowNewProjectModal(true)}>
+								<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-2xl text-white">+</div>
+								<div className="text-lg font-medium text-white">Create New Project</div>
+								<div className="mt-2 max-w-xs text-sm leading-6 text-slate-500">Group related diagrams, workflows, and assets inside one polished project space.</div>
 							</button>
 						</div>
 					)}
 				</div>
 			</main>
 
-			<Modal open={showNewProjectModal} onClose={() => setShowNewProjectModal(false)}>
+			<Modal open={showNewProjectModal} onClose={() => setShowNewProjectModal(false)} title="Create New Project">
 				<div className="p-6">
-					<h3 className="mb-4 text-lg font-semibold text-white">Create New Project</h3>
-					<form className="space-y-3" onSubmit={(e) => { e.preventDefault(); createProject(); }}>
+					<form className="space-y-4" onSubmit={(e) => { e.preventDefault(); createProject(); }}>
 						<Input label="Project Name" placeholder="My Project" value={newProjectName} onChange={setNewProjectName} />
 						<div>
-							<label htmlFor="proj-desc" className="mb-1 block text-sm text-slate-400">Description (optional)</label>
-							<textarea id="proj-desc" value={newProjectDescription} onChange={(e) => setNewProjectDescription(e.target.value)} rows={3} placeholder="What is this project about?" className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none"></textarea>
+							<label htmlFor="proj-desc" className="field-label">Description (optional)</label>
+							<textarea id="proj-desc" value={newProjectDescription} onChange={(e) => setNewProjectDescription(e.target.value)} rows={4} placeholder="What is this project about?" className="field"></textarea>
 						</div>
 						<div className="flex justify-end gap-2 pt-2">
 							<Button variant="ghost" size="sm" onClick={() => setShowNewProjectModal(false)}>Cancel</Button>
@@ -162,13 +200,19 @@ export default function WorkspacePage() {
 				</div>
 			</Modal>
 
-			<Modal open={showNewDocModal} onClose={() => setShowNewDocModal(false)}>
+			<Modal open={showNewDocModal} onClose={() => setShowNewDocModal(false)} title="Create Document" size="lg">
 				<div className="p-6">
-					<h3 className="mb-4 text-lg font-semibold text-white">Create Document</h3>
-					<div className="mb-4"><Input label="Title" placeholder="Untitled" value={newDocTitle} onChange={setNewDocTitle} /></div>
-					<label className="mb-2 block text-sm text-slate-400">Diagram Type</label>
-					<div className="grid grid-cols-3 gap-2">
-						{DIAGRAM_TYPES.map((dt) => <button key={dt.id} className="flex flex-col items-center rounded-lg border border-slate-700 bg-slate-800 p-3 text-center transition-colors hover:border-indigo-500 hover:bg-slate-700" onClick={() => createDocument(dt.id)} disabled={creatingDoc}><span className="mb-1 text-xl">{dt.icon}</span><span className="text-xs text-slate-300">{dt.name}</span></button>)}
+					<div className="mb-5">
+						<Input label="Title" placeholder="Untitled" value={newDocTitle} onChange={setNewDocTitle} />
+					</div>
+					<label className="field-label">Diagram Type</label>
+					<div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+						{DIAGRAM_TYPES.map((dt) => (
+							<button key={dt.id} className="rounded-[1.35rem] border border-white/8 bg-white/5 p-4 text-left hover:-translate-y-0.5 hover:border-indigo-400/30 hover:bg-indigo-500/10" onClick={() => createDocument(dt.id)} disabled={creatingDoc}>
+								<div className="mb-4 text-2xl">{dt.icon}</div>
+								<div className="text-sm font-medium text-white">{dt.name}</div>
+							</button>
+						))}
 					</div>
 				</div>
 			</Modal>

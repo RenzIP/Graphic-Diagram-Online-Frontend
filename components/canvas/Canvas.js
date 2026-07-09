@@ -122,7 +122,8 @@ export default function Canvas({ children, onSvgRef }) {
 	const collab = useStore(collaborationStore);
 
 	return (
-		<div className="relative h-full w-full overflow-hidden bg-slate-900">
+		<div className="relative h-full w-full overflow-hidden bg-[#08101d]">
+			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.08),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.06),transparent_22%)]"></div>
 			<svg ref={svgRef} className="block h-full w-full cursor-crosshair touch-none active:cursor-grabbing" role="application" aria-label="Diagram Canvas" onWheel={handleWheel} onMouseDown={handleMouseDown}>
 				<Grid />
 				<g transform={`translate(${canvas.x} ${canvas.y}) scale(${canvas.k})`}>
@@ -146,7 +147,7 @@ export default function Canvas({ children, onSvgRef }) {
 					})}
 				</g>
 			</svg>
-			<div className="absolute right-4 bottom-4 rounded-md border border-slate-700 bg-slate-800 px-3 py-1 text-sm text-slate-300 shadow-lg">{Math.round(canvas.k * 100)}%</div>
+			<div className="glass-panel absolute right-4 bottom-4 rounded-2xl px-3 py-2 text-sm font-medium text-slate-200">{Math.round(canvas.k * 100)}%</div>
 		</div>
 	);
 }

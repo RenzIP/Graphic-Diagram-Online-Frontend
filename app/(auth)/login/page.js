@@ -26,18 +26,26 @@ function LoginPageContent() {
 	}
 
 	return (
-		<Card className="p-8">
+		<Card className="glass-panel rounded-[2rem] p-8 md:p-10">
 			<div className="mb-8 text-center">
-				<h2 className="text-2xl font-bold text-white">Welcome back</h2>
-				<p className="mt-2 text-slate-400">Sign in to continue to your workspace</p>
+				<div className="section-kicker mb-4">
+					<span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+					Workspace access
+				</div>
+				<h2 className="text-3xl font-semibold tracking-tight text-white">Welcome back</h2>
+				<p className="mt-3 text-base leading-7 text-slate-300">Sign in to access your premium diagram workspace and continue collaborating in real time.</p>
 			</div>
-			{oauthError || error ? <div className="mb-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{oauthError || error}</div> : null}
+			{oauthError || error ? <div className="mb-5 rounded-2xl border border-red-400/20 bg-red-500/10 px-4 py-3 text-sm text-red-100">{oauthError || error}</div> : null}
 			<div className="space-y-4">
-				<Button variant="outline" className="relative w-full justify-center border-none bg-white font-medium text-slate-900 hover:bg-gray-50" onClick={signInWithGoogle} disabled={loading}>{loading ? 'Signing in...' : 'Sign in with Google'}</Button>
-				<Button variant="outline" className="relative w-full justify-center border-slate-700 bg-slate-800 font-medium text-white hover:bg-slate-700" onClick={signInWithGitHub} disabled={loading}>{loading ? 'Signing in...' : 'Sign in with GitHub'}</Button>
+				<Button variant="outline" className="w-full justify-center bg-white text-slate-900 hover:bg-slate-100 hover:text-slate-900" onClick={signInWithGoogle} disabled={loading}>
+					{loading ? 'Signing in...' : 'Sign in with Google'}
+				</Button>
+				<Button variant="secondary" className="w-full justify-center" onClick={signInWithGitHub} disabled={loading}>
+					{loading ? 'Signing in...' : 'Sign in with GitHub'}
+				</Button>
 			</div>
-			<div className="mt-6 text-center text-sm text-slate-400">
-				Don't have an account? <a href="/register" className="font-bold text-indigo-400 hover:text-indigo-300">Sign up</a>
+			<div className="mt-8 rounded-2xl border border-white/8 bg-white/4 px-4 py-4 text-center text-sm text-slate-300">
+				Don't have an account? <a href="/register" className="font-semibold text-indigo-300 hover:text-white">Sign up</a>
 			</div>
 		</Card>
 	);

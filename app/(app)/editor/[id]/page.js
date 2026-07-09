@@ -12,7 +12,6 @@ import FloatingToolbar from '../../../../components/editor/FloatingToolbar.js';
 import PropertyPanel from '../../../../components/editor/PropertyPanel.js';
 import EditorSidebar from '../../../../components/editor/Sidebar.js';
 import Toolbar from '../../../../components/editor/Toolbar.js';
-import Toast from '../../../../components/ui/Toast.js';
 import NodeRenderer from '../../../../components/nodes/NodeRenderer.js';
 import VersionHistory from '../../../../components/editor/VersionHistory.js';
 import { DIAGRAM_TEMPLATES } from '../../../../lib/utils/templates.js';
@@ -165,11 +164,11 @@ function EditorPageContent() {
 	}
 
 	return (
-		<div className="flex h-screen w-screen flex-col overflow-hidden bg-slate-950 text-slate-200">
+		<div className="editor-surface flex h-screen w-screen flex-col overflow-hidden text-slate-200">
 			<Toolbar title={diagramTitle} diagramType={diagramType} onTitleChange={handleTitleChange} svgRef={svgRef} isDirty={isDirty} isSaving={isSaving} lastSavedAt={lastSavedAt} backHref={id === 'demo' || id.startsWith('local-') ? '/dashboard' : '/dashboard'} onToggleVersionHistory={() => setShowVersionHistory(v => !v)} />
 			<div className="relative flex flex-1 overflow-hidden">
 				{isLeftSidebarOpen ? <EditorSidebar diagramType={diagramType} /> : null}
-				<main className="relative flex flex-1 flex-col bg-slate-950">
+				<main className="relative flex flex-1 flex-col">
 					<div className="relative flex-1">
 						<Canvas onSvgRef={setSvgRef}>
 							<EdgeRenderer />
@@ -181,9 +180,12 @@ function EditorPageContent() {
 						<VersionHistory visible={showVersionHistory} onClose={() => setShowVersionHistory(false)} />
 						{!showDslEditor ? (
 							<div className="absolute right-0 bottom-0 left-0 z-20">
-								<button className="flex w-full items-center justify-between border-t border-slate-800 bg-slate-900/90 px-4 py-2 backdrop-blur-sm transition-colors hover:bg-slate-800/90" onClick={() => setShowDslEditor(true)} aria-label="Open DSL Editor">
-									<div className="flex items-center gap-2"><span className="text-xs font-medium text-slate-400">Text-to-Diagram (DSL)</span></div>
-									<span className="text-slate-500">⌃</span>
+								<button className="glass-panel flex w-full items-center justify-between rounded-t-[1.2rem] border-x border-t px-4 py-3 text-left hover:bg-white/8" onClick={() => setShowDslEditor(true)} aria-label="Open DSL Editor">
+									<div className="flex items-center gap-3">
+										<span className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/8 bg-white/6 text-sm text-slate-200">DSL</span>
+										<span className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Text-to-Diagram panel</span>
+									</div>
+									<span className="text-slate-500">Open</span>
 								</button>
 							</div>
 						) : null}
@@ -192,7 +194,6 @@ function EditorPageContent() {
 				</main>
 				{isRightSidebarOpen ? <PropertyPanel /> : null}
 			</div>
-			<Toast />
 		</div>
 	);
 }

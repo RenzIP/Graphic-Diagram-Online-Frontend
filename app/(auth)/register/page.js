@@ -19,21 +19,25 @@ export default function RegisterPage() {
 	}
 
 	return (
-		<Card className="p-8">
+		<Card className="glass-panel rounded-[2rem] p-8 md:p-10">
 			<div className="mb-8 text-center">
-				<h2 className="text-2xl font-bold text-white">Create an account</h2>
-				<p className="mt-2 text-slate-400">Start building professional diagrams today</p>
+				<div className="section-kicker mb-4">
+					<span className="h-2 w-2 rounded-full bg-sky-400"></span>
+					Start free
+				</div>
+				<h2 className="text-3xl font-semibold tracking-tight text-white">Create an account</h2>
+				<p className="mt-3 text-base leading-7 text-slate-300">Start building polished diagrams with a workspace that feels production-ready from day one.</p>
 			</div>
 			<div className="space-y-4">
-				<Button variant="outline" className="relative w-full justify-center border-none bg-white font-medium text-slate-900 hover:bg-gray-50" onClick={signUpWithGoogle} disabled={loading}>{loading ? 'Signing up...' : 'Sign up with Google'}</Button>
-				<Button variant="outline" className="relative w-full justify-center border-slate-700 bg-slate-800 font-medium text-white hover:bg-slate-700" onClick={signUpWithGitHub} disabled={loading}>{loading ? 'Signing up...' : 'Sign up with GitHub'}</Button>
+				<Button variant="outline" className="w-full justify-center bg-white text-slate-900 hover:bg-slate-100 hover:text-slate-900" onClick={signUpWithGoogle} disabled={loading}>{loading ? 'Signing up...' : 'Sign up with Google'}</Button>
+				<Button variant="secondary" className="w-full justify-center" onClick={signUpWithGitHub} disabled={loading}>{loading ? 'Signing up...' : 'Sign up with GitHub'}</Button>
 			</div>
-			<div className="relative my-6"><div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-800"></div></div></div>
-			<div className="text-center text-xs text-slate-500">
-				By signing up, you agree to our <a href="#terms" className="text-indigo-400 hover:text-indigo-300">Terms of Service</a> and <a href="#privacy" className="text-indigo-400 hover:text-indigo-300">Privacy Policy</a>.
+			<div className="my-7 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
+			<div className="text-center text-xs leading-6 text-slate-400">
+				By signing up, you agree to our <a href="#terms" className="font-medium text-indigo-300 hover:text-white">Terms of Service</a> and <a href="#privacy" className="font-medium text-indigo-300 hover:text-white">Privacy Policy</a>.
 			</div>
-			<div className="mt-6 text-center text-sm text-slate-400">
-				Already have an account? <a href="/login" className="font-bold text-indigo-400 hover:text-indigo-300">Log in</a>
+			<div className="mt-8 rounded-2xl border border-white/8 bg-white/4 px-4 py-4 text-center text-sm text-slate-300">
+				Already have an account? <a href="/login" className="font-semibold text-indigo-300 hover:text-white">Log in</a>
 			</div>
 		</Card>
 	);

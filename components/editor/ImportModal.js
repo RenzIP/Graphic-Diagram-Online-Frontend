@@ -23,9 +23,7 @@ export default function ImportModal({ open, onClose }) {
 				let parsedState = null;
 
 				if (file.name.endsWith('.json')) {
-					// Parse JSON IR
 					const json = JSON.parse(text);
-					// JSON structure might be an API document {content, view} or direct IR {nodes, edges}
 					if (json.content) {
 						if (!Array.isArray(json.content.nodes) || !Array.isArray(json.content.edges)) {
 							throw new Error('Invalid JSON format: nodes and edges must be arrays.');
@@ -40,7 +38,6 @@ export default function ImportModal({ open, onClose }) {
 						throw new Error('Invalid JSON format: missing nodes and edges.');
 					}
 				} else if (file.name.endsWith('.dsl') || file.name.endsWith('.txt')) {
-					// Parse DSL text
 					const ast = parseDSL(text);
 					parsedState = transformAST(ast);
 				} else {
@@ -49,17 +46,14 @@ export default function ImportModal({ open, onClose }) {
 
 				if (parsedState) {
 					documentStore.set(parsedState);
-					// Notify others if connected
-					wsClient.send({ type: 'room_state', state: parsedState }); // Basic heuristic to sync full state if needed, though usually each node change is sent. We might need a reload for everyone, but for now local set is fine.
-					
+					wsClient.send({ type: 'room_state', state: parsedState });
 					window.__gradiol_toast?.('Document imported successfully', 'success');
 					onClose();
 				}
 			} catch (err) {
 				setError(err.message || 'Failed to import file');
 			}
-			
-			// Reset input
+
 			if (fileInputRef.current) fileInputRef.current.value = '';
 		};
 		reader.onerror = () => {
@@ -72,23 +66,23 @@ export default function ImportModal({ open, onClose }) {
 	return (
 		<Modal open={open} title="Import Diagram" onClose={onClose} size="md">
 			<div className="flex flex-col gap-4 p-6">
-				<p className="text-sm text-slate-400">
+				<p className="text-sm leading-6 text-slate-400">
 					Upload a saved diagram file to continue editing. Supported formats:
 				</p>
-				<ul className="list-inside list-disc text-sm text-slate-300">
+				<ul className="list-inside list-disc text-sm leading-7 text-slate-300">
 					<li><strong>.json</strong> (GraDiOl Internal Representation)</li>
 					<li><strong>.dsl / .txt</strong> (Text-based DSL Diagram)</li>
 				</ul>
-				
-				<div className="mt-4 flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-700 bg-slate-800/50 p-8 transition-colors hover:border-indigo-500 hover:bg-slate-800">
-					<input 
-						type="file" 
+
+				<div className="import-dropzone mt-4 flex flex-col items-center justify-center p-8 transition-colors hover:border-indigo-400/30 hover:bg-indigo-500/8">
+					<input
+						type="file"
 						ref={fileInputRef}
 						accept=".json,.dsl,.txt"
 						className="hidden"
 						onChange={handleFileChange}
 					/>
-					<div className="mb-4 text-4xl">📄</div>
+					<div className="mb-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-slate-300">File Import</div>
 					<Button variant="primary" onClick={() => fileInputRef.current?.click()}>
 						Select File
 					</Button>
@@ -96,7 +90,7 @@ export default function ImportModal({ open, onClose }) {
 				</div>
 
 				{error && (
-					<div className="mt-2 rounded-md bg-red-500/10 p-3 text-sm text-red-400">
+					<div className="mt-2 rounded-2xl border border-red-400/18 bg-red-500/10 p-3 text-sm text-red-100">
 						{error}
 					</div>
 				)}

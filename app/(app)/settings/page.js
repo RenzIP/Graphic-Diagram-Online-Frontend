@@ -20,36 +20,44 @@ export default function SettingsPage() {
 	}
 
 	return (
-		<div className="flex h-screen overflow-hidden bg-slate-950 text-slate-200">
+		<div className="page-shell">
 			<AppSidebar />
-			<main className="flex min-h-0 flex-1 flex-col overflow-hidden">
-				<header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800 bg-slate-950 px-8">
-					<h1 className="text-xl font-bold text-white">Settings</h1>
+			<main className="page-main">
+				<header className="page-header">
+					<div>
+						<div className="section-kicker">
+							<span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+							Workspace preferences
+						</div>
+						<h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">Settings</h1>
+						<p className="mt-2 text-sm leading-6 text-slate-400">Sesuaikan perilaku editor, visual defaults, dan preferensi kerja tim Anda.</p>
+					</div>
 					<Button variant="primary" size="sm" onClick={saveSettings} disabled={isSaving}>{isSaving ? 'Saving...' : 'Save Changes'}</Button>
 				</header>
-				<div className="flex-1 overflow-y-auto p-8">
+				<div className="page-content">
 					<div className="max-w-3xl space-y-6">
-						<Card className="p-6">
-							<h2 className="mb-4 text-lg font-semibold text-white">Preferences</h2>
+						<Card className="rounded-[1.75rem] p-6">
+							<h2 className="mb-5 text-xl font-semibold text-white">Preferences</h2>
 							<div className="space-y-5">
 								<div>
-									<label className="mb-2 block text-sm text-slate-400">Theme</label>
-									<select value={settings.theme} onChange={(e) => setSettings((s) => ({ ...s, theme: e.target.value }))} className="w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-200 focus:ring-2 focus:ring-indigo-500/50 focus:outline-none">
+									<label className="field-label">Theme</label>
+									<select value={settings.theme} onChange={(e) => setSettings((s) => ({ ...s, theme: e.target.value }))} className="field">
 										<option value="dark">Dark</option>
 										<option value="system">System</option>
 									</select>
 								</div>
-								<label className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900 p-4">
-									<span><span className="block text-sm font-medium text-slate-200">Notifications</span><span className="text-xs text-slate-500">Receive collaboration updates</span></span>
+								<label className="flex items-center justify-between rounded-[1.35rem] border border-white/8 bg-white/5 p-4">
+									<span><span className="block text-sm font-medium text-slate-100">Notifications</span><span className="text-xs text-slate-500">Receive collaboration updates</span></span>
 									<input type="checkbox" checked={settings.notifications} onChange={() => setSettings((s) => ({ ...s, notifications: !s.notifications }))} />
 								</label>
-								<label className="flex items-center justify-between rounded-lg border border-slate-800 bg-slate-900 p-4">
-									<span><span className="block text-sm font-medium text-slate-200">Auto Save</span><span className="text-xs text-slate-500">Save diagrams automatically</span></span>
+								<label className="flex items-center justify-between rounded-[1.35rem] border border-white/8 bg-white/5 p-4">
+									<span><span className="block text-sm font-medium text-slate-100">Auto Save</span><span className="text-xs text-slate-500">Save diagrams automatically</span></span>
 									<input type="checkbox" checked={settings.autoSave} onChange={() => setSettings((s) => ({ ...s, autoSave: !s.autoSave }))} />
 								</label>
 								<div>
-									<label className="mb-2 block text-sm text-slate-400">Grid Size</label>
+									<label className="field-label">Grid Size</label>
 									<input type="range" min="10" max="50" value={settings.gridSize} onChange={(e) => setSettings((s) => ({ ...s, gridSize: Number(e.target.value) }))} className="w-full accent-indigo-500" />
+									<div className="mt-2 text-sm text-slate-500">{settings.gridSize}px spacing</div>
 								</div>
 							</div>
 						</Card>

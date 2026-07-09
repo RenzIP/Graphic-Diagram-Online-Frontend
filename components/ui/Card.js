@@ -3,7 +3,7 @@
 export default function Card({ children, className = '', onClick, ...props }) {
 	return (
 		<div
-			className={`overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 shadow-sm ${className}`}
+			className={`surface-panel overflow-hidden rounded-[1.5rem] ${className}`}
 			onClick={onClick}
 			{...props}
 		>

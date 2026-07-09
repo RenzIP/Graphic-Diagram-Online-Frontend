@@ -34,38 +34,51 @@ export default function EditorSidebar({ diagramType = 'flowchart' }) {
 	}
 
 	return (
-		<aside className="z-10 flex h-full w-60 flex-col border-r border-[#303030] bg-[#1e1e1e] shadow-xl select-none">
-			<div className="space-y-3 border-b border-[#303030] px-4 py-3">
-				<h3 className="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Shapes</h3>
+		<aside className="editor-shape-sidebar z-10 flex h-full w-64 flex-col border-r select-none">
+			<div className="space-y-3 border-b border-white/8 px-4 py-4">
+				<h3 className="text-[11px] font-bold uppercase tracking-[0.18em] text-slate-500">Shapes</h3>
 				<div className="relative">
-					<input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full rounded border border-[#3e3e3e] bg-[#2a2a2a] py-1 pr-2 pl-8 text-xs text-gray-300 placeholder-gray-600 focus:border-indigo-500 focus:outline-none" />
+					<svg className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m21 21-4.35-4.35m1.6-5.15a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z" />
+					</svg>
+					<input type="text" placeholder="Search shapes" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full py-2 pr-3 pl-9 text-xs" />
 				</div>
 			</div>
+
 			<div className="custom-scrollbar flex-1 overflow-y-auto">
-				<div className="border-b border-[#303030]">
-					<button className="flex w-full items-center justify-between px-4 py-2 text-xs font-semibold text-gray-300 transition-colors hover:bg-[#2a2a2a]" onClick={() => setExpanded((s) => ({ ...s, tools: !s.tools }))}>
-						<span>General</span><span className="text-[10px] text-gray-500">{expanded.tools !== false ? '▼' : '▶'}</span>
+				<div className="border-b border-white/8">
+					<button className="flex w-full items-center justify-between px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-300 transition-colors hover:bg-white/6" onClick={() => setExpanded((s) => ({ ...s, tools: !s.tools }))}>
+						<span>General</span>
+						<span className="text-[10px] text-slate-500">{expanded.tools !== false ? 'v' : '>'}</span>
 					</button>
 					{expanded.tools !== false ? (
-						<div className="grid grid-cols-4 gap-2 bg-[#1e1e1e] p-3">
-							<button className="group relative flex flex-col items-center justify-center rounded p-1 text-gray-400 hover:bg-[#303030] hover:text-white" onClick={() => addNode('text', 'Text')} title="Text">T</button>
-							<button className="flex flex-col items-center justify-center rounded p-1 text-gray-400 hover:bg-[#303030] hover:text-white" onClick={() => alert('Drag from any node handle to create a connection!')} title="Connection">→</button>
+						<div className="grid grid-cols-2 gap-2 p-3">
+							<button className="group relative flex min-h-[72px] flex-col items-center justify-center rounded-2xl border border-white/8 bg-white/5 p-2 text-slate-400 hover:border-indigo-400/30 hover:bg-indigo-500/10 hover:text-white" onClick={() => addNode('text', 'Text')} title="Text">
+								<span className="text-lg font-semibold">T</span>
+								<span className="mt-1 text-[10px] uppercase tracking-[0.12em] text-slate-500 group-hover:text-slate-300">Text</span>
+							</button>
+							<button className="group flex min-h-[72px] flex-col items-center justify-center rounded-2xl border border-white/8 bg-white/5 p-2 text-slate-400 hover:border-indigo-400/30 hover:bg-indigo-500/10 hover:text-white" onClick={() => alert('Drag from any node handle to create a connection!')} title="Connection">
+								<span className="text-lg">-&gt;</span>
+								<span className="mt-1 text-[10px] uppercase tracking-[0.12em] text-slate-500 group-hover:text-slate-300">Connect</span>
+							</button>
 						</div>
 					) : null}
 				</div>
+
 				{categories.map((catKey) => (
-					<div key={catKey} className="border-b border-[#303030]">
-						<button className="flex w-full items-center justify-between px-4 py-2 text-xs font-semibold text-gray-300 transition-colors hover:bg-[#2a2a2a]" onClick={() => setExpanded((s) => ({ ...s, [catKey]: !s[catKey] }))}>
-							<span>{CATEGORY_NAMES[catKey] || catKey}</span><span className="text-[10px] text-gray-500">{expanded[catKey] ? '▼' : '▶'}</span>
+					<div key={catKey} className="border-b border-white/8">
+						<button className="flex w-full items-center justify-between px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-slate-300 transition-colors hover:bg-white/6" onClick={() => setExpanded((s) => ({ ...s, [catKey]: !s[catKey] }))}>
+							<span>{CATEGORY_NAMES[catKey] || catKey}</span>
+							<span className="text-[10px] text-slate-500">{expanded[catKey] ? 'v' : '>'}</span>
 						</button>
 						{expanded[catKey] ? (
-							<div className="grid grid-cols-3 gap-2 bg-[#1e1e1e] p-3">
+							<div className="grid grid-cols-3 gap-2 p-3">
 								{(NODE_SHAPES[catKey] || []).filter((s) => !searchQuery || s.label.toLowerCase().includes(searchQuery.toLowerCase())).map((shape) => (
-									<button key={`${catKey}-${shape.type}-${shape.label}`} className="group relative flex flex-col items-center justify-center rounded border border-transparent p-1.5 transition-all hover:border-[#4a4a4a] hover:bg-[#2a2a2a]" onClick={() => addNode(shape.type, shape.label)} title={shape.label} draggable onDragStart={(e) => e.dataTransfer?.setData('application/gradiol-node', JSON.stringify({ type: shape.type, label: shape.label }))}>
-										<div className="flex h-8 w-8 items-center justify-center text-gray-400 transition-colors group-hover:text-white">
+									<button key={`${catKey}-${shape.type}-${shape.label}`} className="group relative flex min-h-[84px] flex-col items-center justify-center rounded-2xl border border-white/8 bg-white/4 p-2 transition-all hover:-translate-y-0.5 hover:border-indigo-400/30 hover:bg-indigo-500/10" onClick={() => addNode(shape.type, shape.label)} title={shape.label} draggable onDragStart={(e) => e.dataTransfer?.setData('application/gradiol-node', JSON.stringify({ type: shape.type, label: shape.label }))}>
+										<div className="flex h-9 w-9 items-center justify-center text-slate-300 transition-colors group-hover:text-white">
 											{shape.type === 'text' ? <span className="font-serif text-xl font-bold">T</span> : <svg viewBox="0 0 40 40" className="h-7 w-7 fill-none stroke-current opacity-80 group-hover:opacity-100" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round"><path d={getShapePath(shape.type, 40, 40)} vectorEffect="non-scaling-stroke" /></svg>}
 										</div>
-										<span className="mt-1 w-full truncate text-center text-[9px] text-gray-500 group-hover:text-gray-300">{shape.label}</span>
+										<span className="mt-2 w-full truncate text-center text-[9px] font-medium uppercase tracking-[0.12em] text-slate-500 group-hover:text-slate-300">{shape.label}</span>
 									</button>
 								))}
 							</div>

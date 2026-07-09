@@ -37,10 +37,12 @@ function AuthCallbackContent() {
 	}, [searchParams]);
 
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-300">
-			<div className="text-center">
-				<div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-slate-700 border-t-indigo-500"></div>
-				<p>{message}</p>
+		<div className="auth-shell">
+			<div className="auth-grid"></div>
+			<div className="glass-panel relative z-10 rounded-[2rem] px-10 py-12 text-center text-slate-300">
+				<div className="mx-auto mb-5 h-10 w-10 animate-spin rounded-full border-2 border-white/12 border-t-indigo-400"></div>
+				<p className="text-base font-medium text-white">{message}</p>
+				<p className="mt-2 text-sm text-slate-400">Securing your workspace and preparing the dashboard.</p>
 			</div>
 		</div>
 	);

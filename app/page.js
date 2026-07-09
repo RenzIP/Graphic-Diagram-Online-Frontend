@@ -1,111 +1,221 @@
 import Button from '../components/ui/Button.js';
 import Card from '../components/ui/Card.js';
 
+const features = [
+	{
+		title: 'Visual speed, text precision',
+		description: 'Move between canvas and DSL without friction. Teams can draft ideas fast, then refine them with structure.',
+		accent: 'linear-gradient(135deg, rgba(99,102,241,0.75), rgba(56,189,248,0.75))'
+	},
+	{
+		title: 'Collaboration built into the canvas',
+		description: 'Presence, autosave, version history, and editor feedback stay visible without turning the UI into noise.',
+		accent: 'linear-gradient(135deg, rgba(124,58,237,0.75), rgba(99,102,241,0.75))'
+	},
+	{
+		title: 'Production-grade outputs',
+		description: 'Export diagrams in the formats teams already expect while keeping the workspace calm, sharp, and consistent.',
+		accent: 'linear-gradient(135deg, rgba(56,189,248,0.75), rgba(34,197,94,0.72))'
+	}
+];
+
+const stats = [
+	['Hybrid workflow', 'Visual + DSL editing'],
+	['Cloud-ready', 'Realtime teamwork'],
+	['Export suite', 'PNG, SVG, JSON, DSL']
+];
+
 export default function HomePage() {
 	return (
-		<div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-indigo-500/30">
-			<nav className="fixed top-0 z-50 w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur-md">
-				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-					<div className="flex h-16 items-center justify-between">
-						<div className="flex items-center gap-2">
-							<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
-								<svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-								</svg>
-							</div>
-							<span className="text-xl font-bold tracking-tight text-white">GraDiOl</span>
+		<div className="min-h-screen overflow-hidden text-white">
+			<div className="hero-orb left-[-8rem] top-[4rem] h-72 w-72 bg-indigo-500/30"></div>
+			<div className="hero-orb right-[-6rem] top-[16rem] h-80 w-80 bg-sky-500/24"></div>
+			<div className="hero-orb bottom-[-10rem] left-[22%] h-80 w-80 bg-violet-500/20"></div>
+
+			<nav className="fixed top-0 z-50 w-full border-b border-white/8 bg-slate-950/55 backdrop-blur-xl">
+				<div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+					<a href="/" className="flex items-center gap-3">
+						<div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-500 via-violet-500 to-sky-500 shadow-[0_18px_40px_rgba(99,102,241,0.28)]">
+							<svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10" />
+							</svg>
 						</div>
-						<div className="flex items-center gap-4">
-							<Button variant="ghost" size="sm" href="/login">Log in</Button>
-							<Button variant="primary" size="sm" href="/register">Sign up</Button>
+						<div>
+							<p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-slate-500">Diagram Workspace</p>
+							<span className="text-xl font-semibold tracking-tight text-white">GraDiOl</span>
 						</div>
+					</a>
+
+					<div className="flex items-center gap-3">
+						<Button variant="ghost" size="sm" href="/login">Log in</Button>
+						<Button variant="primary" size="sm" href="/register">Start free</Button>
 					</div>
 				</div>
 			</nav>
 
-			<section className="relative mx-auto max-w-7xl overflow-hidden px-4 pt-32 pb-20 text-center sm:px-6 lg:px-8">
-				<div className="pointer-events-none absolute top-0 left-1/2 -z-10 h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-indigo-600/20 opacity-50 blur-[120px]"></div>
-				<div className="mb-8 inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-semibold tracking-wider text-indigo-400 uppercase">
-					<span className="h-2 w-2 animate-pulse rounded-full bg-indigo-500"></span>
-					v1.0 Public Beta
-				</div>
-				<h1 className="mb-6 text-5xl font-extrabold tracking-tight text-white sm:text-7xl">
-					Build Diagrams the <br />
-					<span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Smarter Way</span>
-				</h1>
-				<p className="mx-auto mb-10 max-w-2xl text-xl leading-relaxed text-slate-400">
-					A hybrid diagram editor that combines the speed of text with the power of visual tools. Collaborate in real-time, export to code, and streamline your workflow.
-				</p>
-				<div className="mb-20 flex flex-col items-center justify-center gap-4 sm:flex-row">
-					<Button variant="primary" size="lg" href="/dashboard" className="w-full px-8 sm:w-auto">Start Designing</Button>
-					<Button variant="outline" size="lg" href="/demo" className="w-full px-8 sm:w-auto">View Demo</Button>
-				</div>
-
-				<div className="group relative mx-auto aspect-video max-w-5xl overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 shadow-2xl shadow-indigo-500/10 backdrop-blur-sm">
-					<div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-50"></div>
-					<div className="flex h-10 items-center gap-2 border-b border-slate-800 bg-slate-900/80 px-4">
-						<div className="flex gap-1.5">
-							<div className="h-3 w-3 rounded-full border border-red-500/50 bg-red-500/20"></div>
-							<div className="h-3 w-3 rounded-full border border-amber-500/50 bg-amber-500/20"></div>
-							<div className="h-3 w-3 rounded-full border border-green-500/50 bg-green-500/20"></div>
+			<section className="relative px-4 pt-32 pb-20 sm:px-6 lg:px-8">
+				<div className="hero-grid absolute inset-x-0 top-0 h-[720px]"></div>
+				<div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+					<div className="relative z-10">
+						<div className="section-kicker mb-6">
+							<span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+							Premium SaaS Diagramming
+						</div>
+						<h1 className="max-w-4xl text-5xl font-semibold leading-[1.05] tracking-tight text-white sm:text-6xl lg:text-7xl">
+							Design clear systems with a workspace that feels global from the first click.
+						</h1>
+						<p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+							GraDiOl blends diagram editing, structured DSL authoring, and realtime collaboration into a polished interface built for modern product, engineering, and operations teams.
+						</p>
+						<div className="mt-10 flex flex-col gap-4 sm:flex-row">
+							<Button variant="primary" size="lg" href="/dashboard" className="px-7">Launch dashboard</Button>
+							<Button variant="outline" size="lg" href="/demo" className="px-7">Explore demo</Button>
+						</div>
+						<div className="mt-10 grid gap-4 sm:grid-cols-3">
+							{stats.map(([label, value]) => (
+								<div key={label} className="rounded-2xl border border-white/8 bg-white/4 p-4 backdrop-blur-sm">
+									<div className="text-sm font-medium text-white">{label}</div>
+									<div className="mt-1 text-sm text-slate-400">{value}</div>
+								</div>
+							))}
 						</div>
 					</div>
-					<svg className="h-full w-full opacity-80 transition-transform duration-700 ease-out group-hover:scale-105" viewBox="0 0 800 450">
-						<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="1" fill="#334155" /></pattern>
-						<rect width="100%" height="100%" fill="url(#grid)" />
-						<g transform="translate(100, 150)"><rect width="120" height="60" rx="6" fill="#1e293b" stroke="#475569" strokeWidth="2" /><text x="60" y="35" textAnchor="middle" fill="#e2e8f0" fontSize="14" fontFamily="sans-serif">User Login</text></g>
-						<path d="M220 180 L350 180" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)" />
-						<g transform="translate(350, 130)"><polygon points="50,0 100,50 50,100 0,50" fill="#1e293b" stroke="#475569" strokeWidth="2" /><text x="50" y="55" textAnchor="middle" fill="#e2e8f0" fontSize="14" fontFamily="sans-serif">Valid?</text></g>
-						<path d="M450 180 L550 180" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrow)" />
-						<g transform="translate(550, 150)"><rect width="120" height="60" rx="30" fill="#1e293b" stroke="#475569" strokeWidth="2" /><text x="60" y="35" textAnchor="middle" fill="#e2e8f0" fontSize="14" fontFamily="sans-serif">Dashboard</text></g>
-						<defs><marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0, 10 3.5, 0 7" fill="#64748b" /></marker></defs>
-					</svg>
-				</div>
-			</section>
 
-			<section className="relative bg-slate-950 py-24">
-				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-					<div className="mb-16 text-center">
-						<h2 className="mb-4 text-3xl font-bold text-white">Everything you need</h2>
-						<p className="mx-auto max-w-2xl text-slate-400">Powerful features built for modern development teams.</p>
-					</div>
-					<div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-						{[
-							['Lightning Fast', 'Built with Next.js and native SVG for 60fps performance on any device. No lag, even with massive diagrams.', 'indigo'],
-							['Real-time Collaboration', 'Work together with your team in real-time. See cursors, live updates, and conflict-free editing.', 'purple'],
-							['Text-to-Diagram', 'Write diagrams using our intuitive DSL or convert from code. Seamlessly switch between visual and text mode.', 'cyan']
-						].map(([title, text, color]) => (
-							<Card key={title} className={`group p-6 transition-colors hover:border-${color}-500/50`}>
-								<div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-${color}-500/10 transition-colors group-hover:bg-${color}-500/20`}></div>
-								<h3 className="mb-2 text-xl font-bold text-white">{title}</h3>
-								<p className="text-slate-400">{text}</p>
-							</Card>
-						))}
-					</div>
-				</div>
-			</section>
+					<div className="relative">
+						<div className="glass-panel relative overflow-hidden rounded-[2rem] p-4 shadow-[0_30px_90px_rgba(15,23,42,0.4)]">
+							<div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-sky-500/10"></div>
+							<div className="relative rounded-[1.6rem] border border-white/8 bg-slate-950/50">
+								<div className="flex items-center justify-between border-b border-white/8 px-5 py-4">
+									<div className="flex items-center gap-3">
+										<div className="flex gap-2">
+											<span className="h-3 w-3 rounded-full bg-red-400/70"></span>
+											<span className="h-3 w-3 rounded-full bg-amber-400/70"></span>
+											<span className="h-3 w-3 rounded-full bg-emerald-400/70"></span>
+										</div>
+										<span className="text-sm text-slate-400">Realtime diagram workspace</span>
+									</div>
+									<span className="rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-200">Live</span>
+								</div>
+								<div className="grid gap-4 p-4 lg:grid-cols-[220px_1fr]">
+									<div className="rounded-[1.4rem] border border-white/8 bg-white/4 p-4">
+										<div className="mb-4 text-[0.72rem] font-semibold uppercase tracking-[0.14em] text-slate-500">Shape library</div>
+										<div className="space-y-3">
+											{['Flowchart', 'ERD', 'Network', 'UML'].map((item, index) => (
+												<div key={item} className="flex items-center gap-3 rounded-2xl border border-white/6 bg-slate-950/35 px-3 py-3">
+													<div className="h-9 w-9 rounded-xl" style={{ background: index % 2 === 0 ? 'linear-gradient(135deg, rgba(99,102,241,0.35), rgba(124,58,237,0.2))' : 'linear-gradient(135deg, rgba(56,189,248,0.35), rgba(99,102,241,0.16))' }}></div>
+													<div>
+														<div className="text-sm font-medium text-white">{item}</div>
+														<div className="text-xs text-slate-500">Curated shapes</div>
+													</div>
+												</div>
+											))}
+										</div>
+									</div>
 
-			<footer className="border-t border-slate-900 bg-slate-950 pt-16 pb-8">
-				<div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-					<div className="mb-12 grid grid-cols-2 gap-8 md:grid-cols-4">
-						<div className="col-span-2 md:col-span-1">
-							<div className="mb-4 flex items-center gap-2"><span className="text-xl font-bold text-white">GraDiOl</span></div>
-							<p className="text-sm text-slate-500">Graphic Diagram Online.<br />The modern diagramming tool for professionals.</p>
-						</div>
-						{['Product', 'Resources', 'Legal'].map((section) => (
-							<div key={section}>
-								<h4 className="mb-4 font-bold text-white">{section}</h4>
-								<ul className="space-y-2 text-sm text-slate-400">
-									<li><a href="/" className="transition-colors hover:text-white">{section === 'Legal' ? 'Privacy' : section === 'Product' ? 'Features' : 'Documentation'}</a></li>
-									<li><a href="/" className="transition-colors hover:text-white">{section === 'Legal' ? 'Terms' : section === 'Product' ? 'Templates' : 'Blog'}</a></li>
-									{section !== 'Legal' ? <li><a href="/" className="transition-colors hover:text-white">{section === 'Product' ? 'Integrations' : 'Community'}</a></li> : null}
-								</ul>
+									<div className="rounded-[1.4rem] border border-white/8 bg-slate-950/35 p-4">
+										<div className="mb-4 flex items-center justify-between">
+											<div>
+												<div className="text-sm font-semibold text-white">Checkout Flow</div>
+												<div className="text-xs text-slate-500">Autosaved 12 seconds ago</div>
+											</div>
+											<div className="flex items-center gap-2">
+												<span className="rounded-full border border-white/8 bg-white/5 px-3 py-1 text-xs text-slate-300">DSL</span>
+												<span className="rounded-full border border-white/8 bg-white/5 px-3 py-1 text-xs text-slate-300">Canvas</span>
+											</div>
+										</div>
+										<div className="rounded-[1.4rem] border border-white/8 bg-[#0a1120] p-4">
+											<svg className="h-[300px] w-full" viewBox="0 0 780 420">
+												<defs>
+													<linearGradient id="nodeFill" x1="0%" x2="100%" y1="0%" y2="100%">
+														<stop offset="0%" stopColor="#1f2a44" />
+														<stop offset="100%" stopColor="#10192d" />
+													</linearGradient>
+													<linearGradient id="line" x1="0%" x2="100%" y1="0%" y2="0%">
+														<stop offset="0%" stopColor="#818cf8" />
+														<stop offset="100%" stopColor="#38bdf8" />
+													</linearGradient>
+													<pattern id="dots" width="28" height="28" patternUnits="userSpaceOnUse">
+														<circle cx="1.5" cy="1.5" r="1.2" fill="#24324d" />
+													</pattern>
+												</defs>
+												<rect width="100%" height="100%" rx="20" fill="url(#dots)" />
+												<g transform="translate(56 96)">
+													<rect width="148" height="70" rx="20" fill="url(#nodeFill)" stroke="#334155" />
+													<text x="74" y="38" fill="#ffffff" fontSize="16" fontWeight="600" textAnchor="middle">Cart review</text>
+													<text x="74" y="56" fill="#8892a6" fontSize="12" textAnchor="middle">Customer validates order</text>
+												</g>
+												<path d="M204 131H316" stroke="url(#line)" strokeWidth="4" strokeLinecap="round" />
+												<g transform="translate(316 72)">
+													<rect width="148" height="118" rx="26" fill="url(#nodeFill)" stroke="#334155" />
+													<text x="74" y="36" fill="#ffffff" fontSize="16" fontWeight="600" textAnchor="middle">Payment check</text>
+													<text x="74" y="62" fill="#8892a6" fontSize="12" textAnchor="middle">Card authorized?</text>
+													<rect x="22" y="78" width="104" height="22" rx="11" fill="rgba(56,189,248,0.12)" stroke="#38bdf8" />
+													<text x="74" y="93" fill="#bae6fd" fontSize="11" textAnchor="middle">Decision node</text>
+												</g>
+												<path d="M464 131H578" stroke="url(#line)" strokeWidth="4" strokeLinecap="round" />
+												<g transform="translate(578 96)">
+													<rect width="148" height="70" rx="20" fill="url(#nodeFill)" stroke="#334155" />
+													<text x="74" y="38" fill="#ffffff" fontSize="16" fontWeight="600" textAnchor="middle">Order complete</text>
+													<text x="74" y="56" fill="#8892a6" fontSize="12" textAnchor="middle">Receipt and fulfillment</text>
+												</g>
+												<path d="M390 190V274H190V178" stroke="#64748b" strokeWidth="3" strokeDasharray="8 8" fill="none" />
+												<g transform="translate(116 274)">
+													<rect width="148" height="62" rx="18" fill="#111827" stroke="#334155" />
+													<text x="74" y="35" fill="#ffffff" fontSize="15" fontWeight="600" textAnchor="middle">Retry checkout</text>
+												</g>
+											</svg>
+										</div>
+									</div>
+								</div>
 							</div>
-						))}
+						</div>
 					</div>
-					<div className="flex items-center justify-between border-t border-slate-900 pt-8 text-sm text-slate-600">
-						<p>&copy; 2026 GraDiOl Inc. All rights reserved.</p>
-						<p>Made with Next.js & TailwindCSS</p>
+				</div>
+			</section>
+
+			<section className="px-4 py-12 sm:px-6 lg:px-8">
+				<div className="mx-auto grid max-w-7xl gap-6 md:grid-cols-3">
+					{features.map((feature) => (
+						<Card key={feature.title} className="rounded-[1.75rem] p-6">
+							<div className="mb-5 h-1.5 w-24 rounded-full" style={{ background: feature.accent }}></div>
+							<h3 className="text-xl font-semibold text-white">{feature.title}</h3>
+							<p className="mt-3 leading-7 text-slate-300">{feature.description}</p>
+						</Card>
+					))}
+				</div>
+			</section>
+
+			<section className="px-4 py-16 sm:px-6 lg:px-8">
+				<div className="glass-panel mx-auto max-w-7xl rounded-[2rem] p-8 lg:p-10">
+					<div className="grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
+						<div>
+							<div className="section-kicker mb-5">
+								<span className="h-2 w-2 rounded-full bg-sky-400"></span>
+								Ready for product teams
+							</div>
+							<h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">A design language that finally matches the quality of the editor.</h2>
+							<p className="mt-4 max-w-3xl text-base leading-8 text-slate-300">
+								From landing page to workspace to editor panels, every surface now follows the same premium visual system: layered backgrounds, soft glass, richer hierarchy, and motion that feels intentional instead of noisy.
+							</p>
+						</div>
+						<div className="flex flex-col gap-3 sm:flex-row">
+							<Button variant="primary" size="lg" href="/register">Create workspace</Button>
+							<Button variant="outline" size="lg" href="/login">Book a walkthrough</Button>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<footer className="border-t border-white/8 px-4 py-8 sm:px-6 lg:px-8">
+				<div className="mx-auto flex max-w-7xl flex-col gap-4 text-sm text-slate-400 md:flex-row md:items-center md:justify-between">
+					<div>
+						<div className="font-medium text-slate-200">GraDiOl</div>
+						<div>Graphic Diagram Online for premium modern teams.</div>
+					</div>
+					<div className="flex gap-6">
+						<a href="/login" className="hover:text-white">Login</a>
+						<a href="/register" className="hover:text-white">Register</a>
+						<a href="/dashboard" className="hover:text-white">Dashboard</a>
 					</div>
 				</div>
 			</footer>
