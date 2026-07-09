@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Avatar from '../ui/Avatar.js';
+import BrandLogo, { BrandMark } from '../ui/BrandLogo.js';
 import { workspacesApi } from '../../lib/api/workspaces.js';
 import { currentUserStore, logout } from '../../lib/stores/auth.js';
 import { useStore } from '../../hooks/useStore.js';
@@ -75,14 +76,9 @@ export default function AppSidebar() {
 		<aside className="glass-panel flex h-screen w-[88px] flex-col border-r px-3 py-4 md:w-[288px] md:px-4">
 			<div className="mb-6 rounded-[1.75rem] border border-white/8 bg-white/5 p-3 md:p-4">
 				<a href="/" className="flex items-center gap-3">
-					<div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-500 via-violet-500 to-sky-500 shadow-[0_18px_40px_rgba(99,102,241,0.3)]">
-						<svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10" />
-						</svg>
-					</div>
+					<BrandMark className="h-12 w-12" iconClassName="h-6 w-6" />
 					<div className="hidden md:block">
-						<p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate-500">Premium Workspace</p>
-						<p className="text-xl font-semibold tracking-tight text-white">GraDiOl</p>
+						<BrandLogo hideMark className="gap-0" subtitle="Visual Diagram Studio" subtitleClassName="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate-500" nameClassName="text-xl font-semibold tracking-tight text-white" />
 					</div>
 				</a>
 			</div>

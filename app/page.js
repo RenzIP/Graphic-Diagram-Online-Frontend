@@ -1,4 +1,5 @@
 import Button from '../components/ui/Button.js';
+import BrandLogo from '../components/ui/BrandLogo.js';
 import Card from '../components/ui/Card.js';
 
 const features = [
@@ -34,16 +35,8 @@ export default function HomePage() {
 
 			<nav className="fixed top-0 z-50 w-full border-b border-white/8 bg-slate-950/55 backdrop-blur-xl">
 				<div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-					<a href="/" className="flex items-center gap-3">
-						<div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-500 via-violet-500 to-sky-500 shadow-[0_18px_40px_rgba(99,102,241,0.28)]">
-							<svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2m14 0V9a2 2 0 0 0-2-2M5 11V9a2 2 0 0 1 2-2m0 0V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M7 7h10" />
-							</svg>
-						</div>
-						<div>
-							<p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-slate-500">Diagram Workspace</p>
-							<span className="text-xl font-semibold tracking-tight text-white">GraDiOl</span>
-						</div>
+					<a href="/">
+						<BrandLogo markClassName="h-11 w-11" iconClassName="h-5 w-5" nameClassName="text-xl font-semibold tracking-tight text-white" subtitle="Visual Diagram Studio" />
 					</a>
 
 					<div className="flex items-center gap-3">
