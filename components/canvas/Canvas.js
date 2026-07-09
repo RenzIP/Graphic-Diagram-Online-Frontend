@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useStore } from '../../hooks/useStore.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
-import * as SelectionModule from '../../lib/stores/selection.js';
+import { selectionStore } from '../../lib/stores/selection.js';
 import { getSmoothPath } from '../../lib/utils/geometry.js';
 import { collaborationStore } from '../../lib/stores/collaboration.js';
 import Grid from './Grid';
@@ -56,10 +56,10 @@ export default function Canvas({ children, onSvgRef }) {
 				const w = Math.abs(selectionBox.current.x - selectionBox.start.x);
 				const h = Math.abs(selectionBox.current.y - selectionBox.start.y);
 				if (w < 2 && h < 2) {
-					if (!event.shiftKey) SelectionModule.selectionStore.clear();
+					if (!event.shiftKey) selectionStore.clear();
 				} else {
 					const ids = document.nodes.filter((n) => n.position.x < x + w && n.position.x + (n.width || 120) > x && n.position.y < y + h && n.position.y + (n.height || 60) > y).map((n) => n.id);
-					SelectionModule.selectionStore.selectNodes(ids, event.shiftKey);
+					selectionStore.selectNodes(ids, event.shiftKey);
 				}
 				setSelectionBox((box) => ({ ...box, active: false }));
 			}
@@ -96,7 +96,7 @@ export default function Canvas({ children, onSvgRef }) {
 				const x = (event.clientX - canvas.x) / canvas.k;
 				const y = (event.clientY - canvas.y) / canvas.k;
 				setSelectionBox({ active: true, start: { x, y }, current: { x, y } });
-				SelectionModule.selectionStore.clear();
+				selectionStore.clear();
 			} else {
 				setIsPanning(true);
 				setLastMousePos({ x: event.clientX, y: event.clientY });

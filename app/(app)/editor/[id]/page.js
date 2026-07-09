@@ -18,7 +18,7 @@ import VersionHistory from '../../../../components/editor/VersionHistory.js';
 import { DIAGRAM_TEMPLATES } from '../../../../lib/utils/templates.js';
 import { documentStore } from '../../../../lib/stores/document.js';
 import { historyStore } from '../../../../lib/stores/history.js';
-import * as SelectionModule from '../../../../lib/stores/selection.js';
+import { selectionStore } from '../../../../lib/stores/selection.js';
 import { wsClient } from '../../../../lib/ws/client.js';
 
 function EditorPageContent() {
@@ -140,10 +140,10 @@ function EditorPageContent() {
 				performSave(id).then(() => window.__gradiol_toast?.('Document saved', 'success')).catch(() => window.__gradiol_toast?.('Failed to save', 'error'));
 			}
 			if ((key === 'delete' || key === 'backspace') && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
-				const selection = SelectionModule.selectionStore.get();
+				const selection = selectionStore.get();
 				selection.nodes.forEach((nodeId) => documentStore.removeNode(nodeId));
 				selection.edges.forEach((edgeId) => documentStore.removeEdge(edgeId));
-				SelectionModule.selectionStore.clear();
+				selectionStore.clear();
 			}
 			if (isCtrl && key === 'd') {
 				e.preventDefault();

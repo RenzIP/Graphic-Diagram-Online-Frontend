@@ -26,11 +26,12 @@ export default function AppSidebar() {
 		: (user?.email?.slice(0, 2).toUpperCase() ?? '??');
 
 	useEffect(() => {
+		if (!user) return;
 		workspacesApi
 			.list({ per_page: 50 })
 			.then((res) => setWorkspaces(res.data ?? []))
 			.catch(() => setWorkspaces([]));
-	}, []);
+	}, [user]);
 
 	useEffect(() => {
 		const close = () => setShowUserMenu(false);

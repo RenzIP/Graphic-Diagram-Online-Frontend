@@ -6,14 +6,12 @@ import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { collaborationStore } from '../../lib/stores/collaboration.js';
 import { wsClient } from '../../lib/ws/client.js';
-import * as SelectionModule from '../../lib/stores/selection.js';
+import { selectionStore as mySelectionStore } from '../../lib/stores/selection.js';
 
-export default function NodeWrapper({ node, children }) {
+export default function NodeItem({ node, children, isSelected }) {
 	const canvas = useStore(canvasStore);
-	const selection = useStore(SelectionModule.selectionStore);
 	const collab = useStore(collaborationStore);
 	
-	const isSelected = selection.nodes.includes(node.id);
 	const lockUserId = collab.locks[node.id];
 	
 	// A better check for isLockedByOther: we need to know OUR user ID. But we don't have it explicitly stored easily accessible.
@@ -77,8 +75,8 @@ export default function NodeWrapper({ node, children }) {
 		event.stopPropagation();
 		if (isLocked) return; // Prevent local interaction if locked by other
 		
-		if (!isSelected && !event.shiftKey) SelectionModule.selectionStore.selectNode(node.id, false);
-		else if (event.shiftKey) SelectionModule.selectionStore.selectNode(node.id, true);
+		if (!isSelected && !event.shiftKey) mySelectionStore.selectNode(node.id, false);
+		else if (event.shiftKey) mySelectionStore.selectNode(node.id, true);
 		
 		if (event.button === 0 && !node.locked) {
 			setDrag({ start: { x: event.clientX, y: event.clientY }, nodePos: { ...node.position } });
