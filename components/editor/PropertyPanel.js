@@ -221,11 +221,28 @@ export default function PropertyPanel() {
 					</div>
 					<div>
 						<SectionTitle>Stroke color</SectionTitle>
-						<input type="color" value={selectedEdge.style?.stroke || '#64748b'} onChange={(e) => updateEdgeStyle('stroke', e.target.value)} className="mt-3 h-11 w-full cursor-pointer rounded-xl border border-white/10 bg-slate-900 p-1" />
+						<div className="mt-3 flex items-center gap-3 rounded-2xl border border-white/8 bg-white/4 px-3 py-3">
+							<input type="color" value={selectedEdge.style?.stroke || '#64748b'} onChange={(e) => updateEdgeStyle('stroke', e.target.value)} className="h-9 w-9 cursor-pointer rounded-xl border border-white/10 bg-slate-900 p-1" />
+							<div>
+								<div className="text-sm font-medium text-white">{selectedEdge.style?.stroke || '#64748b'}</div>
+								<MiniLabel>Edge stroke color</MiniLabel>
+							</div>
+						</div>
 					</div>
-					<div>
-						<SectionTitle>Stroke width</SectionTitle>
-						<input type="number" min="1" max="10" value={selectedEdge.style?.strokeWidth ?? 2} onChange={(e) => updateEdgeStyle('strokeWidth', +e.target.value)} className="mt-3 w-full px-3 py-2 text-sm" />
+					<div className="grid grid-cols-2 gap-3">
+						<div>
+							<SectionTitle>Stroke width</SectionTitle>
+							<input type="number" min="1" max="10" value={selectedEdge.style?.strokeWidth ?? 2} onChange={(e) => updateEdgeStyle('strokeWidth', +e.target.value)} className="mt-3 w-full px-3 py-2 text-sm" />
+						</div>
+						<div>
+							<SectionTitle>Line style</SectionTitle>
+							<select value={selectedEdge.style?.strokeDasharray || 'none'} onChange={(e) => updateEdgeStyle('strokeDasharray', e.target.value)} className="mt-3 w-full px-3 py-2 text-sm">
+								<option value="none">Solid</option>
+								<option value="5,5">Dashed</option>
+								<option value="2,2">Dotted</option>
+								<option value="10,5,2,5">Dash-dot</option>
+							</select>
+						</div>
 					</div>
 					<label className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/4 px-4 py-3 text-sm text-slate-300"><input type="checkbox" checked={!!selectedEdge.animated} onChange={(e) => updateEdge('animated', e.target.checked)} /> Animated edge</label>
 				</div>

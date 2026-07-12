@@ -5,7 +5,7 @@ import { useStore } from '../../hooks/useStore.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { selectionStore } from '../../lib/stores/selection.js';
-import { getBestHandle, getBorderPoint, getHandlePoint, getNodeCenter, getShapeConnectionPoint, getSmoothPath } from '../../lib/utils/geometry.js';
+import { getBestHandle, getBorderPoint, getHandlePoint, getNearestHandle, getNodeCenter, getShapeConnectionPoint, getSmoothPath } from '../../lib/utils/geometry.js';
 import { collaborationStore } from '../../lib/stores/collaboration.js';
 import { createNodeFromShape, getDefaultNodeSize } from '../../lib/utils/nodes.js';
 import ShapeNode from '../nodes/ShapeNode.js';
@@ -177,8 +177,8 @@ export default function Canvas({ children, onSvgRef }) {
 	const previewTarget = candidateNode
 		? getShapeConnectionPoint(candidateNode, startPos || getNodeCenter(candidateNode))
 		: conn?.mousePos;
-	const previewTargetHandle = candidateNode && startPos ? getBestHandle(candidateNode, startPos) : 'top';
-	const previewSourceHandle = conn?.sourceHandle || (startNode && previewTarget ? getBestHandle(startNode, previewTarget) : 'bottom');
+	const previewTargetHandle = candidateNode && conn?.mousePos ? getNearestHandle(candidateNode, conn.mousePos) : 'top';
+	const previewSourceHandle = conn?.sourceHandle || 'bottom';
 	const boxX = Math.min(selectionBox.start.x, selectionBox.current.x);
 	const boxY = Math.min(selectionBox.start.y, selectionBox.current.y);
 	const boxW = Math.abs(selectionBox.current.x - selectionBox.start.x);

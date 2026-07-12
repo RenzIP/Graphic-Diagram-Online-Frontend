@@ -7,6 +7,7 @@ import { documentStore } from '../../lib/stores/document.js';
 import { collaborationStore } from '../../lib/stores/collaboration.js';
 import { wsClient } from '../../lib/ws/client.js';
 import { selectionStore as mySelectionStore } from '../../lib/stores/selection.js';
+import { getNearestHandle } from '../../lib/utils/geometry.js';
 
 export default function NodeItem({ node, children, isSelected }) {
 	const canvas = useStore(canvasStore);
@@ -99,18 +100,13 @@ export default function NodeItem({ node, children, isSelected }) {
 		canvasStore.startConnection(node.id, handle, handlePoint);
 	}
 
-	function getNearestHandle(clientX, clientY) {
-		const w = node.width || 120;
-		const h = node.height || 60;
-		const localX = (clientX - canvas.x) / canvas.k - node.position.x;
-		const localY = (clientY - canvas.y) / canvas.k - node.position.y;
-		const dist = {
-			top: Math.hypot(localX - w / 2, localY - 0),
-			right: Math.hypot(localX - w, localY - h / 2),
-			bottom: Math.hypot(localX - w / 2, localY - h),
-			left: Math.hypot(localX - 0, localY - h / 2)
-		};
-		return Object.entries(dist).sort((a, b) => a[1] - b[1])[0][0];
+	function getNearestHandleFromEvent(event) {
+		const svg = event.currentTarget.ownerSVGElement;
+		if (!svg) return 'bottom';
+		const rect = svg.getBoundingClientRect();
+		const svgX = (event.clientX - rect.left - canvas.x) / canvas.k;
+		const svgY = (event.clientY - rect.top - canvas.y) / canvas.k;
+		return getNearestHandle(node, { x: svgX, y: svgY });
 	}
 
 	const selectedOrTarget = isSelected || canvas.connecting?.candidateNodeId === node.id;
@@ -129,7 +125,7 @@ export default function NodeItem({ node, children, isSelected }) {
 			onMouseUp={(e) => {
 				if (canvas.connecting && canvas.connecting.sourceNodeId !== node.id) {
 					e.stopPropagation();
-					const targetHandle = getNearestHandle(e.clientX, e.clientY);
+					const targetHandle = getNearestHandleFromEvent(e);
 					const sourceHandle = canvas.connecting.sourceHandle || 'bottom';
 					if (canvas.connecting.modifyingEdgeId) {
 						const patch = canvas.connecting.isReversed
