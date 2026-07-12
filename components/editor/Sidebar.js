@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { NODE_SHAPES } from '../../lib/utils/constants.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { getShapePath } from '../../lib/utils/shapes.js';
+import { createNodeFromShape } from '../../lib/utils/nodes.js';
 
 const CATEGORY_NAMES = {
 	general: 'General',
@@ -30,40 +31,8 @@ export default function EditorSidebar({ diagramType = 'flowchart' }) {
 	}, [categories, searchQuery]);
 
 	function addNode(type, label) {
-		// Default sizes tuned per shape so diagrams don't look squashed/odd
-		const sizeByType = {
-			actor: { width: 80, height: 120 },
-			usecase: { width: 160, height: 80 },
-			class: { width: 160, height: 100 },
-			package: { width: 160, height: 100 },
-			note: { width: 140, height: 80 },
-			decision: { width: 120, height: 100 },
-			diamond: { width: 120, height: 100 },
-			gateway: { width: 80, height: 80 },
-			circle: { width: 90, height: 90 },
-			ellipse: { width: 140, height: 80 },
-			'start-event': { width: 70, height: 70 },
-			'end-event': { width: 70, height: 70 },
-			'intermediate-event': { width: 70, height: 70 },
-			interface: { width: 90, height: 90 },
-			attribute: { width: 110, height: 60 },
-			database: { width: 100, height: 90 },
-			cylinder: { width: 100, height: 90 },
-			cloud: { width: 140, height: 90 },
-			entity: { width: 140, height: 70 },
-			'weak-entity': { width: 140, height: 70 },
-			relationship: { width: 120, height: 90 },
-			'start-end': { width: 120, height: 56 },
-			terminator: { width: 120, height: 56 }
-		};
-		const size = sizeByType[type] || { width: 120, height: 60 };
-		documentStore.addNode({
-			id: crypto.randomUUID(),
-			type,
-			position: { x: 200 + Math.random() * 50, y: 150 + Math.random() * 50 },
-			...size,
-			label: label || 'New Node'
-		});
+		const node = createNodeFromShape(type, label, { x: 200 + Math.random() * 50, y: 150 + Math.random() * 50 });
+		documentStore.addNode(node);
 	}
 
 	return (

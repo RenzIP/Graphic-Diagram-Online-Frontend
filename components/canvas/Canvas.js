@@ -7,6 +7,7 @@ import { documentStore } from '../../lib/stores/document.js';
 import { selectionStore } from '../../lib/stores/selection.js';
 import { getBestHandle, getBorderPoint, getHandlePoint, getNodeCenter, getShapeConnectionPoint, getSmoothPath } from '../../lib/utils/geometry.js';
 import { collaborationStore } from '../../lib/stores/collaboration.js';
+import { createNodeFromShape } from '../../lib/utils/nodes.js';
 import Grid from './Grid';
 
 export default function Canvas({ children, onSvgRef }) {
@@ -16,6 +17,7 @@ export default function Canvas({ children, onSvgRef }) {
 	const [isPanning, setIsPanning] = useState(false);
 	const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
 	const [selectionBox, setSelectionBox] = useState({ start: { x: 0, y: 0 }, current: { x: 0, y: 0 }, active: false });
+	const [dragPreview, setDragPreview] = useState(null);
 
 	useEffect(() => {
 		onSvgRef?.(svgRef.current);
@@ -73,6 +75,39 @@ export default function Canvas({ children, onSvgRef }) {
 			window.removeEventListener('mouseup', onUp);
 		};
 	}, [canvas, document.nodes, isPanning, lastMousePos, selectionBox]);
+
+	function screenToSvg(clientX, clientY) {
+		return {
+			x: (clientX - canvas.x) / canvas.k,
+			y: (clientY - canvas.y) / canvas.k
+		};
+	}
+
+	function handleDragOver(event) {
+		event.preventDefault();
+		if (event.dataTransfer.types.includes('application/gradiol-node')) {
+			setDragPreview(screenToSvg(event.clientX, event.clientY));
+		}
+	}
+
+	function handleDragLeave() {
+		setDragPreview(null);
+	}
+
+	function handleDrop(event) {
+		event.preventDefault();
+		setDragPreview(null);
+		const data = event.dataTransfer.getData('application/gradiol-node');
+		if (!data) return;
+		try {
+			const { type, label } = JSON.parse(data);
+			const coords = screenToSvg(event.clientX, event.clientY);
+			const node = createNodeFromShape(type, label, coords);
+			documentStore.addNode(node);
+		} catch (err) {
+			console.error('[Canvas] Failed to handle drop:', err);
+		}
+	}
 
 	function handleWheel(event) {
 		event.preventDefault();
@@ -132,7 +167,7 @@ export default function Canvas({ children, onSvgRef }) {
 	return (
 		<div className="relative h-full w-full overflow-hidden bg-[#08101d]">
 			<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.08),transparent_26%),radial-gradient(circle_at_bottom_right,rgba(56,189,248,0.06),transparent_22%)]"></div>
-			<svg ref={svgRef} className="block h-full w-full cursor-crosshair touch-none active:cursor-grabbing" role="application" aria-label="Diagram Canvas" onWheel={handleWheel} onMouseDown={handleMouseDown}>
+			<svg ref={svgRef} className="block h-full w-full cursor-crosshair touch-none active:cursor-grabbing" role="application" aria-label="Diagram Canvas" onWheel={handleWheel} onMouseDown={handleMouseDown} onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
 				<Grid />
 				<g transform={`translate(${canvas.x} ${canvas.y}) scale(${canvas.k})`}>
 					{children}
@@ -146,7 +181,15 @@ export default function Canvas({ children, onSvgRef }) {
 						/>
 					) : null}
 					{selectionBox.active ? <rect x={boxX} y={boxY} width={boxW} height={boxH} className="pointer-events-none fill-indigo-500/10 stroke-indigo-500 stroke-1" /> : null}
-					
+
+					{/* Drop preview indicator */}
+					{dragPreview ? (
+						<g className="pointer-events-none" pointerEvents="none">
+							<circle cx={dragPreview.x} cy={dragPreview.y} r={8} className="fill-indigo-500/30 stroke-indigo-400 stroke-2" strokeDasharray="4 2" />
+							<circle cx={dragPreview.x} cy={dragPreview.y} r={2} className="fill-indigo-400" />
+						</g>
+					) : null}
+
 					{/* Remote Cursors */}
 					{Object.entries(collab?.cursors || {}).map(([userId, pos]) => {
 						const user = collab.users.find(u => u.id === userId);
