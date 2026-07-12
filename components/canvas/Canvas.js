@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useStore } from '../../hooks/useStore.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { selectionStore } from '../../lib/stores/selection.js';
 import { getBestHandle, getBorderPoint, getHandlePoint, getNodeCenter, getShapeConnectionPoint, getSmoothPath } from '../../lib/utils/geometry.js';
 import { collaborationStore } from '../../lib/stores/collaboration.js';
-import { createNodeFromShape } from '../../lib/utils/nodes.js';
+import { createNodeFromShape, getDefaultNodeSize } from '../../lib/utils/nodes.js';
+import ShapeNode from '../nodes/ShapeNode.js';
 import Grid from './Grid';
 
 export default function Canvas({ children, onSvgRef }) {
@@ -18,6 +19,15 @@ export default function Canvas({ children, onSvgRef }) {
 	const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
 	const [selectionBox, setSelectionBox] = useState({ start: { x: 0, y: 0 }, current: { x: 0, y: 0 }, active: false });
 	const [dragPreview, setDragPreview] = useState(null);
+	const [dragItem, setDragItem] = useState(null);
+
+	const screenToSvg = useCallback((clientX, clientY) => {
+		const rect = svgRef.current?.getBoundingClientRect();
+		return {
+			x: (clientX - (rect?.left ?? 0) - canvas.x) / canvas.k,
+			y: (clientY - (rect?.top ?? 0) - canvas.y) / canvas.k
+		};
+	}, [canvas.x, canvas.y, canvas.k]);
 
 	useEffect(() => {
 		onSvgRef?.(svgRef.current);
@@ -29,8 +39,7 @@ export default function Canvas({ children, onSvgRef }) {
 			// Throttle cursor updates (50ms)
 			const now = Date.now();
 			if (now - lastCursorSent > 50) {
-				const x = (event.clientX - canvas.x) / canvas.k;
-				const y = (event.clientY - canvas.y) / canvas.k;
+				const { x, y } = screenToSvg(event.clientX, event.clientY);
 				import('../../lib/ws/client.js').then(({ wsClient }) => {
 					wsClient.send({ type: 'cursor_move', x, y });
 				});
@@ -38,7 +47,8 @@ export default function Canvas({ children, onSvgRef }) {
 			}
 
 			if (selectionBox.active) {
-				setSelectionBox((box) => ({ ...box, current: { x: (event.clientX - canvas.x) / canvas.k, y: (event.clientY - canvas.y) / canvas.k } }));
+				const { x, y } = screenToSvg(event.clientX, event.clientY);
+				setSelectionBox((box) => ({ ...box, current: { x, y } }));
 				return;
 			}
 			if (isPanning) {
@@ -48,7 +58,8 @@ export default function Canvas({ children, onSvgRef }) {
 				setLastMousePos({ x: event.clientX, y: event.clientY });
 			}
 			if (canvas.connecting) {
-				canvasStore.updateConnection({ x: (event.clientX - canvas.x) / canvas.k, y: (event.clientY - canvas.y) / canvas.k });
+				const { x, y } = screenToSvg(event.clientX, event.clientY);
+				canvasStore.updateConnection({ x, y });
 			}
 		}
 		function onUp(event) {
@@ -74,33 +85,45 @@ export default function Canvas({ children, onSvgRef }) {
 			window.removeEventListener('mousemove', onMove);
 			window.removeEventListener('mouseup', onUp);
 		};
-	}, [canvas, document.nodes, isPanning, lastMousePos, selectionBox]);
+	}, [canvas, document.nodes, isPanning, lastMousePos, selectionBox, screenToSvg]);
 
-	function screenToSvg(clientX, clientY) {
-		return {
-			x: (clientX - canvas.x) / canvas.k,
-			y: (clientY - canvas.y) / canvas.k
-		};
+	function parseDragData(event) {
+		try {
+			const data = event.dataTransfer.getData('application/gradiol-node');
+			if (!data) return null;
+			return JSON.parse(data);
+		} catch {
+			return null;
+		}
 	}
 
 	function handleDragOver(event) {
 		event.preventDefault();
 		if (event.dataTransfer.types.includes('application/gradiol-node')) {
-			setDragPreview(screenToSvg(event.clientX, event.clientY));
+			const coords = screenToSvg(event.clientX, event.clientY);
+			setDragPreview(coords);
+			// Only parse item data when it changes to avoid extra work
+			setDragItem((prev) => {
+				if (prev) return prev;
+				const data = parseDragData(event);
+				return data || null;
+			});
 		}
 	}
 
 	function handleDragLeave() {
 		setDragPreview(null);
+		setDragItem(null);
 	}
 
 	function handleDrop(event) {
 		event.preventDefault();
 		setDragPreview(null);
-		const data = event.dataTransfer.getData('application/gradiol-node');
+		setDragItem(null);
+		const data = parseDragData(event);
 		if (!data) return;
 		try {
-			const { type, label } = JSON.parse(data);
+			const { type, label } = data;
 			const coords = screenToSvg(event.clientX, event.clientY);
 			const node = createNodeFromShape(type, label, coords);
 			documentStore.addNode(node);
@@ -128,8 +151,7 @@ export default function Canvas({ children, onSvgRef }) {
 		const target = event.target;
 		if ((target.tagName === 'svg' || target.tagName === 'rect') && event.button === 0) {
 			if (event.shiftKey) {
-				const x = (event.clientX - canvas.x) / canvas.k;
-				const y = (event.clientY - canvas.y) / canvas.k;
+				const { x, y } = screenToSvg(event.clientX, event.clientY);
 				setSelectionBox({ active: true, start: { x, y }, current: { x, y } });
 				selectionStore.clear();
 			} else {
@@ -184,9 +206,27 @@ export default function Canvas({ children, onSvgRef }) {
 
 					{/* Drop preview indicator */}
 					{dragPreview ? (
-						<g className="pointer-events-none" pointerEvents="none">
-							<circle cx={dragPreview.x} cy={dragPreview.y} r={8} className="fill-indigo-500/30 stroke-indigo-400 stroke-2" strokeDasharray="4 2" />
-							<circle cx={dragPreview.x} cy={dragPreview.y} r={2} className="fill-indigo-400" />
+						<g className="pointer-events-none" pointerEvents="none" style={{ opacity: 0.65 }}>
+							{dragItem ? (
+								<g transform={`translate(${dragPreview.x - (dragItem.width || 120) / 2} ${dragPreview.y - (dragItem.height || 60) / 2})`}>
+									<ShapeNode
+										node={{
+											id: 'drag-preview',
+											type: dragItem.type,
+											label: dragItem.label,
+											width: dragItem.width || 120,
+											height: dragItem.height || 60,
+											position: { x: 0, y: 0 },
+											style: { stroke: '#6366f1', strokeWidth: 2, fill: 'rgba(99,102,241,0.15)' }
+										}}
+									/>
+								</g>
+							) : (
+								<>
+									<circle cx={dragPreview.x} cy={dragPreview.y} r={8} className="fill-indigo-500/30 stroke-indigo-400 stroke-2" strokeDasharray="4 2" />
+									<circle cx={dragPreview.x} cy={dragPreview.y} r={2} className="fill-indigo-400" />
+								</>
+							)}
 						</g>
 					) : null}
 
