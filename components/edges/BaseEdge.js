@@ -18,11 +18,11 @@ const MARKER_SHAPES = {
 /** Marker viewBox and reference point so the arrow tip lands exactly on the path end. */
 const MARKER_VIEWBOX = '0 0 10 7';
 
-export default function BaseEdge({ edge, sourceNode, targetNode }) {
+export default function BaseEdge({ edge, sourceNode, targetNode, bundle = { index: 0, total: 1 }, allNodes = [] }) {
 	const selection = useStore(selectionStore);
 	const [isEditing, setIsEditing] = useState(false);
 
-	const { path, midPoint, source, target } = getEdgeGeometry(sourceNode, targetNode, edge);
+	const { path, midPoint, source, target } = getEdgeGeometry(sourceNode, targetNode, edge, bundle, allNodes);
 	const isSelected = selection.edges.includes(edge.id);
 	const strokeColor = isSelected ? '#6366f1' : edge.style?.stroke || '#64748b';
 	const strokeWidth = (edge.style?.strokeWidth || 2) + (isSelected ? 1 : 0);
