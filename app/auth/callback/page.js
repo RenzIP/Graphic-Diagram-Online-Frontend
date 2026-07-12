@@ -10,7 +10,13 @@ function AuthCallbackContent() {
 	const [message, setMessage] = useState('Completing sign in...');
 
 	useEffect(() => {
-		const token = searchParams.get('token');
+		// Read token from URL fragment (hash) - more secure than query params
+		// Fragment is not sent to server, not in logs, not in Referer headers
+		const hash = window.location.hash;
+		const hashParams = new URLSearchParams(hash.substring(1)); // Remove leading #
+		const token = hashParams.get('token');
+		
+		// Error still comes from query params (set by backend on failure)
 		const error = searchParams.get('error');
 		const redirectTo = searchParams.get('redirect') || '/dashboard';
 
