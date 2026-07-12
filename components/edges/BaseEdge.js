@@ -168,8 +168,8 @@ export default function BaseEdge({ edge, sourceNode, targetNode, bundle = { inde
 					<marker
 						id={markerEndId}
 						viewBox={MARKER_VIEWBOX}
-						markerWidth="10"
-						markerHeight="7"
+						markerWidth="5"
+						markerHeight="3.5"
 						refX="10"
 						refY="3.5"
 						orient="auto"
@@ -187,8 +187,8 @@ export default function BaseEdge({ edge, sourceNode, targetNode, bundle = { inde
 					<marker
 						id={markerStartId}
 						viewBox={MARKER_VIEWBOX}
-						markerWidth="10"
-						markerHeight="7"
+						markerWidth="5"
+						markerHeight="3.5"
 						refX="0"
 						refY="3.5"
 						orient="auto"
