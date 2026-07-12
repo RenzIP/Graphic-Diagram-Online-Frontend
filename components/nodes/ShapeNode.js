@@ -6,27 +6,34 @@ const styleMap = {
 	slate: { fill: '#1e293b', stroke: '#475569' },
 	red: { fill: 'rgba(127, 29, 29, 0.4)', stroke: '#ef4444' },
 	green: { fill: 'rgba(20, 83, 45, 0.4)', stroke: '#22c55e' },
+	emerald: { fill: 'rgba(6, 78, 59, 0.4)', stroke: '#10b981' },
 	amber: { fill: 'rgba(120, 53, 15, 0.4)', stroke: '#f59e0b' },
 	indigo: { fill: 'rgba(49, 46, 129, 0.4)', stroke: '#6366f1' },
+	purple: { fill: 'rgba(88, 28, 135, 0.4)', stroke: '#a855f7' },
 	cyan: { fill: 'rgba(22, 78, 99, 0.4)', stroke: '#06b6d4' },
+	pink: { fill: 'rgba(131, 24, 67, 0.4)', stroke: '#ec4899' },
 	white: { fill: '#ffffff', stroke: '#94a3b8' }
 };
+
+/** Shapes drawn as stroke figures (not solid filled boxes). */
+const STROKE_FIGURE_TYPES = new Set(['actor']);
 
 export default function ShapeNode({ node }) {
 	const fallback = styleMap[node.color || 'slate'] || styleMap.slate;
 	const w = node.width || 120;
 	const h = node.height || 60;
 	const d = getShapePath(node.type, w, h);
+	const isStrokeFigure = STROKE_FIGURE_TYPES.has(node.type);
 	const fill = node.style?.fill || fallback.fill;
 	const stroke = node.style?.stroke || fallback.stroke;
-	const strokeWidth = node.style?.strokeWidth || 2;
+	const strokeWidth = node.style?.strokeWidth || (isStrokeFigure ? 2.5 : 2);
 	const strokeDasharray = node.style?.strokeDasharray || 'none';
 	const textColor = node.style?.color || (node.color === 'white' ? '#1e293b' : '#e2e8f0');
 	const fontSize = node.style?.fontSize || 14;
 	const fontFamily = node.style?.fontFamily || 'sans-serif';
 	const fontWeight = node.style?.fontWeight || '500';
 	const opacity = node.style?.opacity ?? 1;
-	const hasGradient = !!node.style?.gradient;
+	const hasGradient = !!node.style?.gradient && !isStrokeFigure;
 	const hasShadow = !!node.style?.shadow;
 
 	// Shadow knobs (all optional, sensibly defaulted so the on/off toggle is
@@ -91,21 +98,48 @@ export default function ShapeNode({ node }) {
 					)}
 				</defs>
 			)}
-			<path
-				d={d}
-				className="transition-colors group-hover:stroke-indigo-400"
-				fill={hasGradient ? `url(#${gradientId})` : fill}
-				stroke={stroke}
-				strokeWidth={strokeWidth}
-				strokeDasharray={strokeDasharray}
-				strokeLinejoin="round"
-				filter={hasShadow ? `url(#${shadowId})` : undefined}
-			/>
-			<foreignObject x={0} y={0} width={w} height={h} style={{ pointerEvents: 'none' }}>
-				<div className="flex h-full w-full items-center justify-center overflow-hidden p-2 text-center break-words" style={{ color: textColor, fontFamily, fontSize, fontWeight, lineHeight: 1.2, fontStyle: node.style?.fontStyle, textDecoration: node.style?.textDecoration }}>
-					{node.label}
-				</div>
-			</foreignObject>
+			{isStrokeFigure ? (
+				// Stick-figure / open path shapes: never flood-fill the whole box
+				<path
+					d={d}
+					className="transition-colors group-hover:stroke-indigo-400"
+					fill="none"
+					stroke={stroke}
+					strokeWidth={strokeWidth}
+					strokeDasharray={strokeDasharray}
+					strokeLinecap="round"
+					strokeLinejoin="round"
+					filter={hasShadow ? `url(#${shadowId})` : undefined}
+				/>
+			) : (
+				<path
+					d={d}
+					className="transition-colors group-hover:stroke-indigo-400"
+					fill={hasGradient ? `url(#${gradientId})` : fill}
+					stroke={stroke}
+					strokeWidth={strokeWidth}
+					strokeDasharray={strokeDasharray}
+					strokeLinejoin="round"
+					filter={hasShadow ? `url(#${shadowId})` : undefined}
+				/>
+			)}
+			{isStrokeFigure ? (
+				// Label sits under the stick figure (UML convention)
+				<foreignObject x={0} y={h * 0.72} width={w} height={h * 0.28} style={{ pointerEvents: 'none' }}>
+					<div
+						className="flex h-full w-full items-start justify-center overflow-hidden px-1 text-center break-words"
+						style={{ color: textColor, fontFamily, fontSize: Math.max(11, fontSize - 1), fontWeight, lineHeight: 1.15, fontStyle: node.style?.fontStyle, textDecoration: node.style?.textDecoration }}
+					>
+						{node.label}
+					</div>
+				</foreignObject>
+			) : (
+				<foreignObject x={0} y={0} width={w} height={h} style={{ pointerEvents: 'none' }}>
+					<div className="flex h-full w-full items-center justify-center overflow-hidden p-2 text-center break-words" style={{ color: textColor, fontFamily, fontSize, fontWeight, lineHeight: 1.2, fontStyle: node.style?.fontStyle, textDecoration: node.style?.textDecoration }}>
+						{node.label}
+					</div>
+				</foreignObject>
+			)}
 		</g>
 	);
 }

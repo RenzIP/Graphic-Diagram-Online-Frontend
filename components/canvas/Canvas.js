@@ -5,7 +5,7 @@ import { useStore } from '../../hooks/useStore.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { selectionStore } from '../../lib/stores/selection.js';
-import { getSmoothPath } from '../../lib/utils/geometry.js';
+import { getBestHandle, getBorderPoint, getHandlePoint, getNodeCenter, getShapeConnectionPoint, getSmoothPath } from '../../lib/utils/geometry.js';
 import { collaborationStore } from '../../lib/stores/collaboration.js';
 import Grid from './Grid';
 
@@ -110,10 +110,18 @@ export default function Canvas({ children, onSvgRef }) {
 
 	const conn = canvas.connecting;
 	const startNode = conn ? document.nodes.find((n) => n.id === conn.sourceNodeId) : null;
-	const startPos = startNode && conn ? {
-		x: startNode.position.x + (conn.sourceHandle === 'left' ? 0 : conn.sourceHandle === 'right' ? startNode.width || 120 : (startNode.width || 120) / 2),
-		y: startNode.position.y + (conn.sourceHandle === 'top' ? 0 : conn.sourceHandle === 'bottom' ? startNode.height || 60 : (startNode.height || 60) / 2)
-	} : null;
+	const candidateNode = conn?.candidateNodeId ? document.nodes.find((n) => n.id === conn.candidateNodeId) : null;
+	const startPos =
+		startNode && conn
+			? conn.sourceHandle
+				? getHandlePoint(startNode, conn.sourceHandle)
+				: getBorderPoint(startNode, conn.mousePos || getNodeCenter(startNode))
+			: null;
+	const previewTarget = candidateNode
+		? getShapeConnectionPoint(candidateNode, startPos || getNodeCenter(candidateNode))
+		: conn?.mousePos;
+	const previewTargetHandle = candidateNode && startPos ? getBestHandle(candidateNode, startPos) : 'top';
+	const previewSourceHandle = conn?.sourceHandle || (startNode && previewTarget ? getBestHandle(startNode, previewTarget) : 'bottom');
 	const boxX = Math.min(selectionBox.start.x, selectionBox.current.x);
 	const boxY = Math.min(selectionBox.start.y, selectionBox.current.y);
 	const boxW = Math.abs(selectionBox.current.x - selectionBox.start.x);
@@ -128,7 +136,15 @@ export default function Canvas({ children, onSvgRef }) {
 				<Grid />
 				<g transform={`translate(${canvas.x} ${canvas.y}) scale(${canvas.k})`}>
 					{children}
-					{conn && startPos ? <path d={getSmoothPath(startPos, conn.mousePos, conn.sourceHandle, 'top')} className="pointer-events-none stroke-indigo-500 stroke-2" strokeDasharray="5,5" fill="none" /> : null}
+					{conn && startPos && previewTarget ? (
+						<path
+							d={getSmoothPath(startPos, previewTarget, previewSourceHandle, previewTargetHandle)}
+							className="pointer-events-none stroke-indigo-500 stroke-2"
+							strokeDasharray="6 4"
+							strokeLinecap="round"
+							fill="none"
+						/>
+					) : null}
 					{selectionBox.active ? <rect x={boxX} y={boxY} width={boxW} height={boxH} className="pointer-events-none fill-indigo-500/10 stroke-indigo-500 stroke-1" /> : null}
 					
 					{/* Remote Cursors */}

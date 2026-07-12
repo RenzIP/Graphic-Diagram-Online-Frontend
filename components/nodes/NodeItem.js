@@ -87,10 +87,30 @@ export default function NodeItem({ node, children, isSelected }) {
 	function handleConnectorMouseDown(event, handle) {
 		event.stopPropagation();
 		event.preventDefault();
-		const bounds = event.currentTarget.getBoundingClientRect();
-		const x = (bounds.left + bounds.width / 2 - canvas.x) / canvas.k;
-		const y = (bounds.top + bounds.height / 2 - canvas.y) / canvas.k;
-		canvasStore.startConnection(node.id, handle, { x, y });
+		const w = node.width || 120;
+		const h = node.height || 60;
+		// Use node-local geometry (stable under zoom/pan) instead of DOM rect math
+		const handlePoint = {
+			top: { x: node.position.x + w / 2, y: node.position.y },
+			right: { x: node.position.x + w, y: node.position.y + h / 2 },
+			bottom: { x: node.position.x + w / 2, y: node.position.y + h },
+			left: { x: node.position.x, y: node.position.y + h / 2 }
+		}[handle] || { x: node.position.x + w / 2, y: node.position.y + h / 2 };
+		canvasStore.startConnection(node.id, handle, handlePoint);
+	}
+
+	function getNearestHandle(clientX, clientY) {
+		const w = node.width || 120;
+		const h = node.height || 60;
+		const localX = (clientX - canvas.x) / canvas.k - node.position.x;
+		const localY = (clientY - canvas.y) / canvas.k - node.position.y;
+		const dist = {
+			top: Math.hypot(localX - w / 2, localY - 0),
+			right: Math.hypot(localX - w, localY - h / 2),
+			bottom: Math.hypot(localX - w / 2, localY - h),
+			left: Math.hypot(localX - 0, localY - h / 2)
+		};
+		return Object.entries(dist).sort((a, b) => a[1] - b[1])[0][0];
 	}
 
 	const selectedOrTarget = isSelected || canvas.connecting?.candidateNodeId === node.id;
@@ -109,10 +129,24 @@ export default function NodeItem({ node, children, isSelected }) {
 			onMouseUp={(e) => {
 				if (canvas.connecting && canvas.connecting.sourceNodeId !== node.id) {
 					e.stopPropagation();
+					const targetHandle = getNearestHandle(e.clientX, e.clientY);
+					const sourceHandle = canvas.connecting.sourceHandle || 'bottom';
 					if (canvas.connecting.modifyingEdgeId) {
-						documentStore.updateEdge(canvas.connecting.modifyingEdgeId, canvas.connecting.isReversed ? { source: node.id } : { target: node.id });
+						const patch = canvas.connecting.isReversed
+							? { source: node.id, sourceHandle: targetHandle }
+							: { target: node.id, targetHandle };
+						documentStore.updateEdge(canvas.connecting.modifyingEdgeId, patch);
 					} else {
-						documentStore.addEdge({ id: crypto.randomUUID(), source: canvas.connecting.sourceNodeId, target: node.id, type: 'straight' });
+						documentStore.addEdge({
+							id: crypto.randomUUID(),
+							source: canvas.connecting.sourceNodeId,
+							target: node.id,
+							sourceHandle,
+							targetHandle,
+							// Default bezier looks cleaner between diagram shapes
+							type: 'default',
+							markerEnd: 'arrow'
+						});
 					}
 					canvasStore.endConnection();
 				}
