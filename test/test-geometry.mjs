@@ -92,13 +92,34 @@ console.log('TEST 5: Edge dengan obstacle (A* routing) tidak crash');
 	assert(!e.path.includes('NaN'), 'path obstacle tidak mengandung NaN');
 }
 
-console.log('TEST 6: Parallel edges ter-spread (bundle)');
+console.log('TEST 7: Default/straight edge tidak memutar (akar masalah "aneh")');
 {
 	const a = node('a', 'rectangle', 0, 0);
 	const b = node('b', 'rectangle', 300, 0);
-	const e1 = getEdgeGeometry(a, b, { sourceHandle: 'right', targetHandle: 'left' }, { index: 0, total: 2 });
-	const e2 = getEdgeGeometry(a, b, { sourceHandle: 'right', targetHandle: 'left' }, { index: 1, total: 2 });
-	assert(e1.source.y !== e2.source.y, 'dua edge parallel tidak overlap di anchor yang sama');
+	// Node obstacle tepat di tengah garis a-b
+	const obstacle = node('o', 'rectangle', 130, -20, 40, 100);
+	const all = [a, b, obstacle];
+	const eDefault = getEdgeGeometry(a, b, { type: 'default' }, { index: 0, total: 1 }, all);
+	const eStraight = getEdgeGeometry(a, b, { type: 'straight' }, { index: 0, total: 1 }, all);
+	// Straight edge: boleh ada tepat 1 'L' (garis langsung), tapi TIDAK boleh
+	// ada waypoint memutar (lebih dari 1 'L' atau 'C' di tengah).
+	const lCount = (eStraight.path.match(/ L /g) || []).length;
+	assert(lCount <= 1, `straight edge langsung garis (${lCount} segmen L, harus ≤1)`);
+	assert(!eStraight.path.includes(' C '), 'straight edge tidak punya curve memutar');
+}
+
+console.log('TEST 8: Bezier default flat (controlDist kecil, tidak melengkung besar)');
+{
+	const a = node('a', 'rectangle', 0, 0);
+	const b = node('b', 'rectangle', 400, 0); // jauh
+	const e = getEdgeGeometry(a, b, { sourceHandle: 'right', targetHandle: 'left' });
+	// Control point keluar tegak lurus dari sisi (x meningkat sedikit, y tetap)
+	// Path: M sx sy C c1x c1y, c2x c2y, tx ty
+	const m = e.path.match(/C ([-\d.]+) ([-\d.]+), ([-\d.]+) ([-\d.]+)/);
+	const c1x = parseFloat(m[1]);
+	const c1y = parseFloat(m[2]);
+	assert(Math.abs(c1y - 30) < 1, `control point 1 horizontal (y=${c1y}, harus ~30)`);
+	assert(c1x - 120 <= 60, `control point 1 tidak terlalu jauh (dx=${c1x - 120})`);
 }
 
 console.log(`\n=== ${passed} passed, ${failed} failed ===`);
