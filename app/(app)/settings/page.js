@@ -1,12 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import AppSidebar from '../../../components/layout/AppSidebar.js';
 import Button from '../../../components/ui/Button.js';
 import Card from '../../../components/ui/Card.js';
+import { currentUserStore, updateProfile } from '../../../lib/stores/auth.js';
+import { useStore } from '../../../hooks/useStore.js';
 
 export default function SettingsPage() {
+	const user = useStore(currentUserStore());
 	const [isSaving, setIsSaving] = useState(false);
+	const [saveMessage, setSaveMessage] = useState('');
+	
+	const [profile, setProfile] = useState({
+		fullName: '',
+		username: ''
+	});
+
 	const [settings, setSettings] = useState({
 		theme: 'dark',
 		notifications: true,
@@ -14,9 +24,60 @@ export default function SettingsPage() {
 		gridSize: 20
 	});
 
-	function saveSettings() {
+	useEffect(() => {
+		if (user) {
+			setProfile({
+				fullName: user.full_name || '',
+				username: user.username || ''
+			});
+		}
+	}, [user]);
+
+	useEffect(() => {
+		const savedSettings = localStorage.getItem('user_settings');
+		if (savedSettings) {
+			try {
+				setSettings(JSON.parse(savedSettings));
+			} catch (e) {
+				console.error("Failed to parse settings", e);
+			}
+		}
+	}, []);
+
+	async function saveSettings() {
 		setIsSaving(true);
-		setTimeout(() => setIsSaving(false), 800);
+		setSaveMessage('');
+		
+		try {
+			// Save preferences locally
+			localStorage.setItem('user_settings', JSON.stringify(settings));
+			
+			// Apply theme immediately
+			let theme = settings.theme;
+			if (theme === 'system') {
+				theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+			}
+			if (theme === 'light') {
+				document.documentElement.setAttribute('data-theme', 'light');
+			} else {
+				document.documentElement.removeAttribute('data-theme');
+			}
+			
+			// Update profile on the backend
+			if (user && (profile.fullName !== user.full_name || profile.username !== user.username)) {
+				await updateProfile({
+					full_name: profile.fullName || null,
+					username: profile.username || null
+				});
+			}
+			
+			setSaveMessage('Settings saved successfully!');
+		} catch (error) {
+			setSaveMessage('Failed to save settings: ' + (error.message || 'Unknown error'));
+		} finally {
+			setIsSaving(false);
+			setTimeout(() => setSaveMessage(''), 3000);
+		}
 	}
 
 	return (
@@ -29,15 +90,46 @@ export default function SettingsPage() {
 							<span className="h-2 w-2 rounded-full bg-emerald-400"></span>
 							Workspace preferences
 						</div>
-						<h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">Settings</h1>
+						<h1 className="mt-4 text-3xl font-semibold tracking-tight text-[var(--text-primary)]">Settings</h1>
 						<p className="mt-2 text-sm leading-6 text-slate-400">Sesuaikan perilaku editor, visual defaults, dan preferensi kerja tim Anda.</p>
 					</div>
-					<Button variant="primary" size="sm" onClick={saveSettings} disabled={isSaving}>{isSaving ? 'Saving...' : 'Save Changes'}</Button>
+					<div className="flex items-center gap-3">
+						{saveMessage && <span className="text-sm text-emerald-400">{saveMessage}</span>}
+						<Button variant="primary" size="sm" onClick={saveSettings} disabled={isSaving}>
+							{isSaving ? 'Saving...' : 'Save Changes'}
+						</Button>
+					</div>
 				</header>
 				<div className="page-content">
 					<div className="max-w-3xl space-y-6">
 						<Card className="rounded-[1.75rem] p-6">
-							<h2 className="mb-5 text-xl font-semibold text-white">Preferences</h2>
+							<h2 className="mb-5 text-xl font-semibold text-[var(--text-primary)]">Profile</h2>
+							<div className="space-y-5">
+								<div>
+									<label className="field-label">Full Name</label>
+									<input 
+										type="text" 
+										value={profile.fullName} 
+										onChange={(e) => setProfile((s) => ({ ...s, fullName: e.target.value }))} 
+										className="field" 
+										placeholder="John Doe"
+									/>
+								</div>
+								<div>
+									<label className="field-label">Username</label>
+									<input 
+										type="text" 
+										value={profile.username} 
+										onChange={(e) => setProfile((s) => ({ ...s, username: e.target.value }))} 
+										className="field" 
+										placeholder="johndoe"
+									/>
+								</div>
+							</div>
+						</Card>
+
+						<Card className="rounded-[1.75rem] p-6">
+							<h2 className="mb-5 text-xl font-semibold text-[var(--text-primary)]">Preferences</h2>
 							<div className="space-y-5">
 								<div>
 									<label className="field-label">Theme</label>
@@ -46,12 +138,12 @@ export default function SettingsPage() {
 										<option value="system">System</option>
 									</select>
 								</div>
-								<label className="flex items-center justify-between rounded-[1.35rem] border border-white/8 bg-white/5 p-4">
-									<span><span className="block text-sm font-medium text-slate-100">Notifications</span><span className="text-xs text-slate-500">Receive collaboration updates</span></span>
+								<label className="flex items-center justify-between rounded-[1.35rem] border border-[var(--border-soft)] bg-[var(--bg-glass)] p-4">
+									<span><span className="block text-sm font-medium text-[var(--text-primary)]">Notifications</span><span className="text-xs text-slate-500">Receive collaboration updates</span></span>
 									<input type="checkbox" checked={settings.notifications} onChange={() => setSettings((s) => ({ ...s, notifications: !s.notifications }))} />
 								</label>
-								<label className="flex items-center justify-between rounded-[1.35rem] border border-white/8 bg-white/5 p-4">
-									<span><span className="block text-sm font-medium text-slate-100">Auto Save</span><span className="text-xs text-slate-500">Save diagrams automatically</span></span>
+								<label className="flex items-center justify-between rounded-[1.35rem] border border-[var(--border-soft)] bg-[var(--bg-glass)] p-4">
+									<span><span className="block text-sm font-medium text-[var(--text-primary)]">Auto Save</span><span className="text-xs text-slate-500">Save diagrams automatically</span></span>
 									<input type="checkbox" checked={settings.autoSave} onChange={() => setSettings((s) => ({ ...s, autoSave: !s.autoSave }))} />
 								</label>
 								<div>

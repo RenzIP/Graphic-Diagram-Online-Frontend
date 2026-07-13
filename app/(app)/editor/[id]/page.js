@@ -38,15 +38,21 @@ function EditorPageContent() {
 	const initializedRef = useRef(false);
 	const autosaveTimer = useRef(null);
 
+	const saveContext = useRef({ diagramTitle, isApiDocument, isSaving });
+	useEffect(() => {
+		saveContext.current = { diagramTitle, isApiDocument, isSaving };
+	}, [diagramTitle, isApiDocument, isSaving]);
+
 	const performSave = useCallback(async (docId) => {
-		if (isSaving) return;
-		if (!isApiDocument) {
+		const ctx = saveContext.current;
+		if (ctx.isSaving) return;
+		if (!ctx.isApiDocument) {
 			setIsDirty(false);
 			return;
 		}
 		setIsSaving(true);
 		try {
-			await documentStore.save(docId, diagramTitle);
+			await documentStore.save(docId, ctx.diagramTitle);
 			setIsDirty(false);
 			setLastSavedAt(new Date().toLocaleTimeString());
 		} catch (err) {
@@ -54,7 +60,7 @@ function EditorPageContent() {
 		} finally {
 			setIsSaving(false);
 		}
-	}, [diagramTitle, isApiDocument, isSaving]);
+	}, []);
 
 	const scheduleAutosave = useCallback((docId) => {
 		if (autosaveTimer.current) clearTimeout(autosaveTimer.current);

@@ -1,6 +1,7 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
 import AuthInit from '../components/layout/AuthInit.js';
+import ThemeProvider from '../components/layout/ThemeProvider.js';
 import Toast from '../components/ui/Toast.js';
 
 const inter = Inter({
@@ -21,9 +22,11 @@ export default function RootLayout({ children }) {
 	return (
 		<html lang="en" className={inter.variable}>
 			<body>
-				<AuthInit />
-				{children}
-				<Toast />
+				<ThemeProvider>
+					<AuthInit />
+					{children}
+					<Toast />
+				</ThemeProvider>
 			</body>
 		</html>
 	);
