@@ -96,9 +96,11 @@ function EditorPageContent() {
 			return;
 		}
 
-		documentStore.load(id).then((found) => {
-			if (found) {
+		documentStore.load(id).then((doc) => {
+			if (doc) {
 				setIsApiDocument(true);
+				if (doc.title) setDiagramTitle(doc.title);
+				if (doc.diagram_type) setDiagramType(doc.diagram_type);
 				initializedRef.current = true;
 				setIsDirty(false);
 				wsClient.connect(id);
