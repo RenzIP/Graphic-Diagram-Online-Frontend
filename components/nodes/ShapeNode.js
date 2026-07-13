@@ -112,16 +112,28 @@ export default function ShapeNode({ node }) {
 					filter={hasShadow ? `url(#${shadowId})` : undefined}
 				/>
 			) : (
-				<path
-					d={d}
-					className="transition-colors group-hover:stroke-indigo-400"
-					fill={hasGradient ? `url(#${gradientId})` : fill}
-					stroke={stroke}
-					strokeWidth={strokeWidth}
-					strokeDasharray={strokeDasharray}
-					strokeLinejoin="round"
-					filter={hasShadow ? `url(#${shadowId})` : undefined}
-				/>
+				<>
+					<path
+						d={d}
+						className="transition-colors group-hover:stroke-indigo-400"
+						fill={hasGradient ? `url(#${gradientId})` : fill}
+						stroke={stroke}
+						strokeWidth={strokeWidth}
+						strokeDasharray={strokeDasharray}
+						strokeLinejoin="round"
+						filter={hasShadow ? `url(#${shadowId})` : undefined}
+					/>
+					{/* Subtle inner highlight (draw.io style) for depth on solid shapes */}
+					<path
+						d={d}
+						fill="none"
+						stroke="#ffffff"
+						strokeOpacity={node.style?.innerStroke != null ? node.style.innerStroke : 0.08}
+						strokeWidth={1}
+						strokeLinejoin="round"
+						style={{ pointerEvents: 'none' }}
+					/>
+				</>
 			)}
 			{isStrokeFigure ? (
 				// Label sits under the stick figure (UML convention)
