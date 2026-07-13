@@ -90,6 +90,9 @@ export default function AppSidebar() {
 						<NavLink href="/dashboard" active={pathname === '/dashboard'} icon={<SidebarIcon path="M4 6.75A1.75 1.75 0 0 1 5.75 5h3.5A1.75 1.75 0 0 1 11 6.75v3.5A1.75 1.75 0 0 1 9.25 12h-3.5A1.75 1.75 0 0 1 4 10.25zm9 0A1.75 1.75 0 0 1 14.75 5h3.5A1.75 1.75 0 0 1 20 6.75v3.5A1.75 1.75 0 0 1 18.25 12h-3.5A1.75 1.75 0 0 1 13 10.25zM4 15.75A1.75 1.75 0 0 1 5.75 14h12.5A1.75 1.75 0 0 1 20 15.75v2.5A1.75 1.75 0 0 1 18.25 20H5.75A1.75 1.75 0 0 1 4 18.25z" />}>Dashboard</NavLink>
 						<NavLink href="/team" active={pathname.startsWith('/team')} icon={<SidebarIcon path="M16 21v-1.5A3.5 3.5 0 0 0 12.5 16h-5A3.5 3.5 0 0 0 4 19.5V21m15-8.5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0ZM12 8.5a3.5 3.5 0 1 0-7 0 3.5 3.5 0 0 0 7 0Z" />}>Team Members</NavLink>
 						<NavLink href="/settings" active={pathname.startsWith('/settings')} icon={<SidebarIcon path="M12 3v2.25m0 13.5V21m8.25-9H18m-12 0H3.75m13.16-5.41-1.6 1.59M8.69 15.31l-1.6 1.6m9.82 0-1.6-1.6m-6.62-6.62-1.6-1.59M15.5 12A3.5 3.5 0 1 1 12 8.5 3.5 3.5 0 0 1 15.5 12Z" />}>Settings</NavLink>
+						{user?.role === 'admin' && (
+							<NavLink href="/admin" active={pathname.startsWith('/admin')} icon={<SidebarIcon path="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />}>Admin Panel</NavLink>
+						)}
 					</div>
 				</section>
 
