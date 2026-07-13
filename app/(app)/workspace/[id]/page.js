@@ -40,6 +40,14 @@ export default function WorkspacePage() {
 	const [projectDocsMap, setProjectDocsMap] = useState({});
 	const [loadingDocsMap, setLoadingDocsMap] = useState({});
 
+	const [showEditWorkspaceModal, setShowEditWorkspaceModal] = useState(false);
+	const [editWsName, setEditWsName] = useState('');
+	const [editWsDescription, setEditWsDescription] = useState('');
+	const [isUpdatingWs, setIsUpdatingWs] = useState(false);
+
+	const [showDeleteWorkspaceModal, setShowDeleteWorkspaceModal] = useState(false);
+	const [isDeletingWs, setIsDeletingWs] = useState(false);
+
 	function toggleProject(projectId) {
 		const isExpanded = !expandedProjects[projectId];
 		setExpandedProjects((prev) => ({ ...prev, [projectId]: isExpanded }));
@@ -114,6 +122,43 @@ export default function WorkspacePage() {
 		}
 	}
 
+	function openEditWorkspace() {
+		setEditWsName(workspace.name);
+		setEditWsDescription(workspace.description || '');
+		setShowEditWorkspaceModal(true);
+	}
+
+	async function updateWorkspace() {
+		if (!editWsName.trim()) return;
+		setIsUpdatingWs(true);
+		try {
+			const updated = await workspacesApi.update(workspaceId, { name: editWsName.trim(), description: editWsDescription.trim() || undefined });
+			setWorkspace(updated);
+			setShowEditWorkspaceModal(false);
+			if (window.__gradiol_toast) window.__gradiol_toast('Workspace berhasil diperbarui!', 'success');
+		} catch (e) {
+			console.error('Failed to update workspace:', e);
+			if (window.__gradiol_toast) window.__gradiol_toast('Gagal memperbarui workspace', 'error');
+		} finally {
+			setIsUpdatingWs(false);
+		}
+	}
+
+	async function deleteWorkspace() {
+		setIsDeletingWs(true);
+		try {
+			await workspacesApi.delete(workspaceId);
+			setShowDeleteWorkspaceModal(false);
+			if (window.__gradiol_toast) window.__gradiol_toast('Workspace berhasil dihapus!', 'success');
+			window.location.href = '/dashboard';
+		} catch (e) {
+			console.error('Failed to delete workspace:', e);
+			if (window.__gradiol_toast) window.__gradiol_toast('Gagal menghapus workspace', 'error');
+		} finally {
+			setIsDeletingWs(false);
+		}
+	}
+
 	return (
 		<div className="page-shell">
 			<AppSidebar />
@@ -128,7 +173,17 @@ export default function WorkspacePage() {
 						<h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">{workspace?.name ?? 'Workspace'}</h1>
 						<p className="mt-2 text-sm leading-6 text-slate-400">{workspace?.description || 'Kelola project dan dokumen diagram dalam satu ruang kerja yang rapi dan siap kolaborasi.'}</p>
 					</div>
-					{workspace?.role === 'owner' || workspace?.role === 'editor' ? <Button variant="primary" size="sm" onClick={() => setShowNewProjectModal(true)}>New Project</Button> : null}
+					<div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
+						{workspace?.role === 'owner' || workspace?.role === 'editor' ? (
+							<Button variant="outline" size="sm" onClick={openEditWorkspace}>Edit Workspace</Button>
+						) : null}
+						{workspace?.role === 'owner' ? (
+							<Button variant="danger" size="sm" onClick={() => setShowDeleteWorkspaceModal(true)}>Hapus Workspace</Button>
+						) : null}
+						{workspace?.role === 'owner' || workspace?.role === 'editor' ? (
+							<Button variant="primary" size="sm" onClick={() => setShowNewProjectModal(true)}>New Project</Button>
+						) : null}
+					</div>
 				</header>
 
 				<div className="page-content">
@@ -292,6 +347,34 @@ export default function WorkspacePage() {
 								<div className="text-sm font-medium text-white">{dt.name}</div>
 							</button>
 						))}
+					</div>
+				</div>
+			</Modal>
+
+			<Modal open={showEditWorkspaceModal} onClose={() => setShowEditWorkspaceModal(false)} title="Edit Workspace">
+				<div className="p-6">
+					<form className="space-y-4" onSubmit={(e) => { e.preventDefault(); updateWorkspace(); }}>
+						<Input label="Nama Workspace" placeholder="Mis. Product Design Squad" value={editWsName} onChange={setEditWsName} />
+						<div>
+							<label htmlFor="edit-ws-desc" className="field-label">Deskripsi (opsional)</label>
+							<textarea id="edit-ws-desc" value={editWsDescription} onChange={(e) => setEditWsDescription(e.target.value)} rows={4} placeholder="Apa fungsi workspace ini?" className="field"></textarea>
+						</div>
+						<div className="flex justify-end gap-2 pt-2">
+							<Button variant="ghost" size="sm" type="button" onClick={() => setShowEditWorkspaceModal(false)}>Batal</Button>
+							<Button variant="primary" size="sm" type="submit" disabled={isUpdatingWs || !editWsName.trim()}>{isUpdatingWs ? 'Menyimpan...' : 'Simpan Perubahan'}</Button>
+						</div>
+					</form>
+				</div>
+			</Modal>
+
+			<Modal open={showDeleteWorkspaceModal} onClose={() => setShowDeleteWorkspaceModal(false)} title="Konfirmasi Hapus Workspace">
+				<div className="p-6">
+					<p className="mb-6 text-sm leading-7 text-slate-300">
+						Apakah Anda yakin ingin menghapus workspace <span className="font-semibold text-white">"{workspace?.name}"</span>? Tindakan ini akan menghapus semua project dan dokumen di dalamnya, dan tidak dapat dibatalkan.
+					</p>
+					<div className="flex justify-end gap-3">
+						<Button variant="ghost" type="button" onClick={() => setShowDeleteWorkspaceModal(false)}>Batal</Button>
+						<Button variant="danger" type="button" onClick={deleteWorkspace} disabled={isDeletingWs}>{isDeletingWs ? 'Menghapus...' : 'Ya, Hapus Workspace'}</Button>
 					</div>
 				</div>
 			</Modal>

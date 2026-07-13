@@ -126,7 +126,8 @@
 @layer components {
 	.page-shell {
 		display: flex;
-		min-height: 100vh;
+		height: 100vh;
+		overflow: hidden;
 		background: transparent;
 		color: var(--text-primary);
 	}
