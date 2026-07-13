@@ -36,6 +36,29 @@ export default function WorkspacePage() {
 	const [newDocProjectId, setNewDocProjectId] = useState('');
 	const [newDocTitle, setNewDocTitle] = useState('');
 	const [creatingDoc, setCreatingDoc] = useState(false);
+	const [expandedProjects, setExpandedProjects] = useState({});
+	const [projectDocsMap, setProjectDocsMap] = useState({});
+	const [loadingDocsMap, setLoadingDocsMap] = useState({});
+
+	function toggleProject(projectId) {
+		const isExpanded = !expandedProjects[projectId];
+		setExpandedProjects((prev) => ({ ...prev, [projectId]: isExpanded }));
+
+		if (isExpanded && !projectDocsMap[projectId]) {
+			setLoadingDocsMap((prev) => ({ ...prev, [projectId]: true }));
+			documentsApi
+				.listByProject(projectId)
+				.then((res) => {
+					setProjectDocsMap((prev) => ({ ...prev, [projectId]: res.data ?? [] }));
+				})
+				.catch((e) => {
+					console.error('Failed to load documents:', e);
+				})
+				.finally(() => {
+					setLoadingDocsMap((prev) => ({ ...prev, [projectId]: false }));
+				});
+		}
+	}
 
 	useEffect(() => {
 		Promise.all([workspacesApi.list({ per_page: 100 }), projectsApi.listByWorkspace(workspaceId, { per_page: 50 })])
@@ -151,7 +174,7 @@ export default function WorkspacePage() {
 					) : (
 						<div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
 							{projects.map((project) => (
-								<Card key={project.id} className="group relative cursor-pointer rounded-[1.75rem] p-0">
+								<Card key={project.id} onClick={() => toggleProject(project.id)} className={`group relative cursor-pointer rounded-[1.75rem] p-0 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(99,102,241,0.1)] ${expandedProjects[project.id] ? 'ring-1 ring-indigo-500/25 bg-slate-900/50' : ''}`}>
 									<div className="absolute inset-x-6 top-0 h-1 rounded-b-full bg-gradient-to-r from-indigo-400 via-violet-400 to-sky-400 opacity-70"></div>
 									<div className="p-6">
 										<div className="mb-5 flex items-start justify-between">
@@ -168,12 +191,68 @@ export default function WorkspacePage() {
 										<h3 className="text-xl font-semibold tracking-tight text-white">{project.name}</h3>
 										{project.description ? <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-400">{project.description}</p> : <p className="mt-3 text-sm leading-6 text-slate-500">No project description added yet.</p>}
 										<div className="mt-6 flex items-center justify-between text-sm text-slate-500">
-											<span>{project.document_count} document{project.document_count !== 1 ? 's' : ''}</span>
+											<span className="flex items-center gap-1.5 hover:text-indigo-300 transition-colors">
+												<svg className={`h-4 w-4 transition-transform duration-200 ${expandedProjects[project.id] ? 'rotate-90 text-indigo-400' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
+												</svg>
+												{project.document_count ?? 0} document{project.document_count !== 1 ? 's' : ''}
+											</span>
 											<span>Updated {timeAgo(project.updated_at)}</span>
 										</div>
 									</div>
+
+									{expandedProjects[project.id] && (
+										<div className="border-t border-white/8 bg-slate-950/20 px-6 py-5" onClick={(e) => e.stopPropagation()}>
+											<div className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Documents</div>
+											{loadingDocsMap[project.id] ? (
+												<div className="space-y-2">
+													<div className="skeleton h-10 w-full rounded-xl"></div>
+													<div className="skeleton h-10 w-2/3 rounded-xl"></div>
+												</div>
+											) : !projectDocsMap[project.id] || projectDocsMap[project.id].length === 0 ? (
+												<div className="text-sm text-slate-500 py-3 text-center border border-dashed border-white/5 rounded-xl">No documents yet. Click "New doc" to create one.</div>
+											) : (
+												<div className="space-y-2 max-h-[240px] overflow-y-auto pr-1 custom-scrollbar">
+													{projectDocsMap[project.id].map((doc) => {
+														const icon = DIAGRAM_TYPES.find((dt) => dt.id === doc.diagram_type)?.icon || '📊';
+														return (
+															<div key={doc.id} className="flex items-center justify-between rounded-xl border border-white/5 bg-slate-950/40 p-3 hover:border-indigo-400/20 hover:bg-slate-950/70 transition cursor-pointer" onClick={() => { window.location.href = `/editor/${doc.id}`; }}>
+																<div className="flex items-center gap-3">
+																	<span className="text-xl">{icon}</span>
+																	<div>
+																		<div className="text-sm font-medium text-white line-clamp-1">{doc.title}</div>
+																		<div className="text-[10px] text-slate-500">{timeAgo(doc.updated_at)}</div>
+																	</div>
+																</div>
+																<button className="rounded-lg border border-red-500/16 bg-red-500/8 p-1.5 text-red-200 hover:bg-red-500/20 transition-colors" title="Delete document" onClick={async (e) => {
+																	e.stopPropagation();
+																	if (!confirm(`Delete document "${doc.title}"?`)) return;
+																	try {
+																		await documentsApi.delete(doc.id);
+																		setProjectDocsMap(prev => ({
+																			...prev,
+																			[project.id]: prev[project.id].filter(d => d.id !== doc.id)
+																		}));
+																		// Update document count locally if possible
+																		project.document_count = Math.max(0, (project.document_count || 1) - 1);
+																	} catch (err) {
+																		console.error("Failed to delete document:", err);
+																	}
+																}}>
+																	<svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+																		<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+																	</svg>
+																</button>
+															</div>
+														);
+													})}
+												</div>
+											)}
+										</div>
+									)}
 								</Card>
 							))}
+
 							<button className="surface-panel flex min-h-[220px] flex-col items-center justify-center rounded-[1.75rem] border-dashed p-6 text-center hover:-translate-y-1 hover:border-indigo-400/24 hover:bg-indigo-500/8" onClick={() => setShowNewProjectModal(true)}>
 								<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-2xl text-white">+</div>
 								<div className="text-lg font-medium text-white">Create New Project</div>
