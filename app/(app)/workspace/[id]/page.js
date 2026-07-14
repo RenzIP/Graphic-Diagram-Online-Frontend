@@ -22,6 +22,33 @@ function timeAgo(dateStr) {
 	return `${Math.floor(diff / 86400)} days ago`;
 }
 
+function Icon({ path, className = 'h-4 w-4' }) {
+	return (
+		<svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8">
+			<path strokeLinecap="round" strokeLinejoin="round" d={path} />
+		</svg>
+	);
+}
+
+function ActionPill({ tone = 'neutral', children, onClick, title }) {
+	const tones = {
+		neutral: 'border-white/8 bg-white/5 text-slate-200 hover:border-white/14 hover:bg-white/10 hover:text-white',
+		brand: 'border-indigo-400/18 bg-indigo-500/10 text-indigo-100 hover:border-indigo-300/32 hover:bg-indigo-500/16 hover:text-white',
+		danger: 'border-red-400/16 bg-red-500/8 text-red-100 hover:border-red-300/28 hover:bg-red-500/14 hover:text-red-50'
+	};
+
+	return (
+		<button
+			type="button"
+			title={title}
+			onClick={onClick}
+			className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition ${tones[tone] ?? tones.neutral}`}
+		>
+			{children}
+		</button>
+	);
+}
+
 export default function WorkspacePage() {
 	const params = useParams();
 	const workspaceId = params.id;
@@ -85,7 +112,11 @@ export default function WorkspacePage() {
 		if (!newProjectName.trim()) return;
 		setCreatingProject(true);
 		try {
-			const project = await projectsApi.create({ workspace_id: workspaceId, name: newProjectName.trim(), description: newProjectDescription.trim() || undefined });
+			const project = await projectsApi.create({
+				workspace_id: workspaceId,
+				name: newProjectName.trim(),
+				description: newProjectDescription.trim() || undefined
+			});
 			setProjects((items) => [...items, project]);
 			setShowNewProjectModal(false);
 			setNewProjectName('');
@@ -111,7 +142,12 @@ export default function WorkspacePage() {
 		if (!newDocProjectId) return;
 		setCreatingDoc(true);
 		try {
-			const doc = await documentsApi.create({ workspace_id: workspaceId, project_id: newDocProjectId, title: newDocTitle.trim() || 'Untitled', diagram_type: typeId });
+			const doc = await documentsApi.create({
+				workspace_id: workspaceId,
+				project_id: newDocProjectId,
+				title: newDocTitle.trim() || 'Untitled',
+				diagram_type: typeId
+			});
 			setShowNewDocModal(false);
 			setNewDocTitle('');
 			window.location.href = `/editor/${doc.id}`;
@@ -132,7 +168,10 @@ export default function WorkspacePage() {
 		if (!editWsName.trim()) return;
 		setIsUpdatingWs(true);
 		try {
-			const updated = await workspacesApi.update(workspaceId, { name: editWsName.trim(), description: editWsDescription.trim() || undefined });
+			const updated = await workspacesApi.update(workspaceId, {
+				name: editWsName.trim(),
+				description: editWsDescription.trim() || undefined
+			});
 			setWorkspace(updated);
 			setShowEditWorkspaceModal(false);
 			if (window.__gradiol_toast) window.__gradiol_toast('Workspace berhasil diperbarui!', 'success');
@@ -171,17 +210,30 @@ export default function WorkspacePage() {
 							<span className="text-slate-300">{workspace?.name ?? 'Workspace'}</span>
 						</nav>
 						<h1 className="mt-4 text-3xl font-semibold tracking-tight text-white">{workspace?.name ?? 'Workspace'}</h1>
-						<p className="mt-2 text-sm leading-6 text-slate-400">{workspace?.description || 'Kelola project dan dokumen diagram dalam satu ruang kerja yang rapi dan siap kolaborasi.'}</p>
+						<p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+							{workspace?.description || 'Kelola project dan dokumen diagram dalam satu ruang kerja yang rapi dan siap kolaborasi.'}
+						</p>
 					</div>
-					<div className="flex flex-wrap items-center gap-3 mt-4 sm:mt-0">
+					<div className="mt-4 flex flex-wrap items-center gap-3 sm:mt-0">
 						{workspace?.role === 'owner' || workspace?.role === 'editor' ? (
-							<Button variant="outline" size="sm" onClick={openEditWorkspace}>Edit Workspace</Button>
-						) : null}
-						{workspace?.role === 'owner' ? (
-							<Button variant="danger" size="sm" onClick={() => setShowDeleteWorkspaceModal(true)}>Hapus Workspace</Button>
+							<div className="glass-panel flex flex-wrap items-center gap-2 rounded-[1.25rem] px-2 py-2">
+								<Button variant="outline" size="sm" className="gap-2" onClick={openEditWorkspace}>
+									<Icon path="M16.862 4.487a2.25 2.25 0 1 1 3.182 3.182L8.25 19.463l-4.5 1.318 1.318-4.5z" />
+									Edit Workspace
+								</Button>
+								{workspace?.role === 'owner' ? (
+									<Button variant="danger" size="sm" className="gap-2 shadow-none" onClick={() => setShowDeleteWorkspaceModal(true)}>
+										<Icon path="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
+										Hapus Workspace
+									</Button>
+								) : null}
+							</div>
 						) : null}
 						{workspace?.role === 'owner' || workspace?.role === 'editor' ? (
-							<Button variant="primary" size="sm" onClick={() => setShowNewProjectModal(true)}>New Project</Button>
+							<Button variant="primary" size="sm" className="gap-2" onClick={() => setShowNewProjectModal(true)}>
+								<Icon path="M12 4.5v15m7.5-7.5h-15" />
+								New Project
+							</Button>
 						) : null}
 					</div>
 				</header>
@@ -205,13 +257,14 @@ export default function WorkspacePage() {
 						</div>
 					</div>
 
-					<section className="mb-6 flex items-center justify-between">
+					<section className="mb-6 flex flex-wrap items-end justify-between gap-4">
 						<div>
 							<div className="section-kicker">
 								<span className="h-2 w-2 rounded-full bg-indigo-400"></span>
 								Project hub
 							</div>
 							<h2 className="mt-4 text-2xl font-semibold tracking-tight text-white">Projects</h2>
+							<p className="mt-2 text-sm leading-6 text-slate-500">Ruang kerja ini menyimpan semua alur, diagram, dan dokumen yang terkait.</p>
 						</div>
 						<span className="rounded-full border border-white/8 bg-white/4 px-4 py-2 text-sm text-slate-400">{projects.length} project{projects.length !== 1 ? 's' : ''}</span>
 					</section>
@@ -229,73 +282,97 @@ export default function WorkspacePage() {
 					) : (
 						<div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
 							{projects.map((project) => (
-								<Card key={project.id} onClick={() => toggleProject(project.id)} className={`group relative cursor-pointer rounded-[1.75rem] p-0 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(99,102,241,0.1)] ${expandedProjects[project.id] ? 'ring-1 ring-indigo-500/25 bg-slate-900/50' : ''}`}>
+								<Card key={project.id} onClick={() => toggleProject(project.id)} className={`group relative cursor-pointer overflow-hidden rounded-[1.75rem] p-0 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_40px_rgba(99,102,241,0.1)] ${expandedProjects[project.id] ? 'ring-1 ring-indigo-500/25 bg-slate-900/50' : ''}`}>
 									<div className="absolute inset-x-6 top-0 h-1 rounded-b-full bg-gradient-to-r from-indigo-400 via-violet-400 to-sky-400 opacity-70"></div>
 									<div className="p-6">
-										<div className="mb-5 flex items-start justify-between">
-											<div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-gradient-to-br from-indigo-500/25 to-sky-500/20 text-white shadow-[0_16px_30px_rgba(99,102,241,0.18)]">
-												<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
-												</svg>
+										<div className="mb-5 flex items-start justify-between gap-3">
+											<div className="flex items-center gap-4">
+												<div className="flex h-14 w-14 items-center justify-center rounded-[1.2rem] border border-white/10 bg-gradient-to-br from-indigo-500/25 to-sky-500/20 text-white shadow-[0_16px_30px_rgba(99,102,241,0.18)]">
+													<svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 7a2 2 0 0 1 2-2h4l2 2h6a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" />
+													</svg>
+												</div>
+												<div>
+													<div className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-slate-500">Project Space</div>
+													<div className="mt-1 rounded-full border border-white/8 bg-white/5 px-3 py-1 text-[11px] font-medium text-slate-300">
+														{project.document_count ?? 0} document{project.document_count !== 1 ? 's' : ''}
+													</div>
+												</div>
 											</div>
 											<div className="flex gap-2">
-												<button className="rounded-xl border border-white/8 bg-white/5 px-3 py-2 text-xs text-slate-300 hover:border-indigo-400/30 hover:bg-indigo-500/10 hover:text-white" title="Add document" onClick={(e) => { e.stopPropagation(); setNewDocProjectId(project.id); setShowNewDocModal(true); }}>New doc</button>
-												<button className="rounded-xl border border-red-400/16 bg-red-500/8 px-3 py-2 text-xs text-red-100 hover:border-red-300/24 hover:bg-red-500/12" title="Delete project" onClick={(e) => { e.stopPropagation(); deleteProject(project.id, project.name); }}>Delete</button>
+												<ActionPill tone="brand" title="Add document" onClick={(e) => { e.stopPropagation(); setNewDocProjectId(project.id); setShowNewDocModal(true); }}>
+													<Icon path="M12 4.5v15m7.5-7.5h-15" className="h-3.5 w-3.5" />
+													New doc
+												</ActionPill>
+												<ActionPill tone="danger" title="Delete project" onClick={(e) => { e.stopPropagation(); deleteProject(project.id, project.name); }}>
+													<Icon path="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" className="h-3.5 w-3.5" />
+													Delete
+												</ActionPill>
 											</div>
 										</div>
 										<h3 className="text-xl font-semibold tracking-tight text-white">{project.name}</h3>
-										{project.description ? <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-400">{project.description}</p> : <p className="mt-3 text-sm leading-6 text-slate-500">No project description added yet.</p>}
+										{project.description ? (
+											<p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-400">{project.description}</p>
+										) : (
+											<p className="mt-3 text-sm leading-6 text-slate-500">No project description added yet.</p>
+										)}
 										<div className="mt-6 flex items-center justify-between text-sm text-slate-500">
-											<span className="flex items-center gap-1.5 hover:text-indigo-300 transition-colors">
+											<span className="flex items-center gap-1.5 transition-colors hover:text-indigo-300">
 												<svg className={`h-4 w-4 transition-transform duration-200 ${expandedProjects[project.id] ? 'rotate-90 text-indigo-400' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 													<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" />
 												</svg>
-												{project.document_count ?? 0} document{project.document_count !== 1 ? 's' : ''}
+												View documents
 											</span>
 											<span>Updated {timeAgo(project.updated_at)}</span>
 										</div>
 									</div>
 
-									{expandedProjects[project.id] && (
+									{expandedProjects[project.id] ? (
 										<div className="border-t border-white/8 bg-slate-950/20 px-6 py-5" onClick={(e) => e.stopPropagation()}>
-											<div className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Documents</div>
+											<div className="mb-3 flex items-center justify-between gap-3">
+												<div className="text-xs font-semibold uppercase tracking-wider text-slate-400">Documents</div>
+												<div className="text-[11px] text-slate-500">Open a document or remove items from this project.</div>
+											</div>
 											{loadingDocsMap[project.id] ? (
 												<div className="space-y-2">
 													<div className="skeleton h-10 w-full rounded-xl"></div>
 													<div className="skeleton h-10 w-2/3 rounded-xl"></div>
 												</div>
 											) : !projectDocsMap[project.id] || projectDocsMap[project.id].length === 0 ? (
-												<div className="text-sm text-slate-500 py-3 text-center border border-dashed border-white/5 rounded-xl">No documents yet. Click "New doc" to create one.</div>
+												<div className="rounded-xl border border-dashed border-white/5 py-3 text-center text-sm text-slate-500">No documents yet. Click "New doc" to create one.</div>
 											) : (
-												<div className="space-y-2 max-h-[240px] overflow-y-auto pr-1 custom-scrollbar">
+												<div className="custom-scrollbar max-h-[240px] space-y-2 overflow-y-auto pr-1">
 													{projectDocsMap[project.id].map((doc) => {
-														const icon = DIAGRAM_TYPES.find((dt) => dt.id === doc.diagram_type)?.icon || '📊';
+														const icon = DIAGRAM_TYPES.find((dt) => dt.id === doc.diagram_type)?.icon || 'D';
 														return (
-															<div key={doc.id} className="flex items-center justify-between rounded-xl border border-white/5 bg-slate-950/40 p-3 hover:border-indigo-400/20 hover:bg-slate-950/70 transition cursor-pointer" onClick={() => { window.location.href = `/editor/${doc.id}`; }}>
+															<div key={doc.id} className="flex cursor-pointer items-center justify-between rounded-xl border border-white/5 bg-slate-950/40 p-3 transition hover:border-indigo-400/20 hover:bg-slate-950/70" onClick={() => { window.location.href = `/editor/${doc.id}`; }}>
 																<div className="flex items-center gap-3">
 																	<span className="text-xl">{icon}</span>
 																	<div>
-																		<div className="text-sm font-medium text-white line-clamp-1">{doc.title}</div>
+																		<div className="line-clamp-1 text-sm font-medium text-white">{doc.title}</div>
 																		<div className="text-[10px] text-slate-500">{timeAgo(doc.updated_at)}</div>
 																	</div>
 																</div>
-																<button className="rounded-lg border border-red-500/16 bg-red-500/8 p-1.5 text-red-200 hover:bg-red-500/20 transition-colors" title="Delete document" onClick={async (e) => {
-																	e.stopPropagation();
-																	if (!confirm(`Delete document "${doc.title}"?`)) return;
-																	try {
-																		await documentsApi.delete(doc.id);
-																		setProjectDocsMap(prev => ({
-																			...prev,
-																			[project.id]: prev[project.id].filter(d => d.id !== doc.id)
-																		}));
-																		// Update document count locally if possible
-																		project.document_count = Math.max(0, (project.document_count || 1) - 1);
-																	} catch (err) {
-																		console.error("Failed to delete document:", err);
-																	}
-																}}>
+																<button
+																	className="rounded-lg border border-red-500/16 bg-red-500/8 p-1.5 text-red-200 transition-colors hover:bg-red-500/20"
+																	title="Delete document"
+																	onClick={async (e) => {
+																		e.stopPropagation();
+																		if (!confirm(`Delete document "${doc.title}"?`)) return;
+																		try {
+																			await documentsApi.delete(doc.id);
+																			setProjectDocsMap((prev) => ({
+																				...prev,
+																				[project.id]: prev[project.id].filter((d) => d.id !== doc.id)
+																			}));
+																			project.document_count = Math.max(0, (project.document_count || 1) - 1);
+																		} catch (err) {
+																			console.error('Failed to delete document:', err);
+																		}
+																	}}
+																>
 																	<svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-																		<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+																		<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0 1 16.138 21H7.862a2 2 0 0 1-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v3M4 7h16" />
 																	</svg>
 																</button>
 															</div>
@@ -304,14 +381,15 @@ export default function WorkspacePage() {
 												</div>
 											)}
 										</div>
-									)}
+									) : null}
 								</Card>
 							))}
 
-							<button className="surface-panel flex min-h-[220px] flex-col items-center justify-center rounded-[1.75rem] border-dashed p-6 text-center hover:-translate-y-1 hover:border-indigo-400/24 hover:bg-indigo-500/8" onClick={() => setShowNewProjectModal(true)}>
-								<div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-2xl text-white">+</div>
-								<div className="text-lg font-medium text-white">Create New Project</div>
-								<div className="mt-2 max-w-xs text-sm leading-6 text-slate-500">Group related diagrams, workflows, and assets inside one polished project space.</div>
+							<button className="surface-panel group relative flex min-h-[260px] flex-col items-center justify-center overflow-hidden rounded-[1.75rem] border-dashed p-6 text-center hover:-translate-y-1 hover:border-indigo-400/24 hover:bg-indigo-500/8" onClick={() => setShowNewProjectModal(true)}>
+								<div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.1),transparent_38%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+								<div className="relative mb-5 flex h-16 w-16 items-center justify-center rounded-[1.35rem] border border-white/10 bg-white/5 text-3xl text-white shadow-[0_12px_24px_rgba(2,6,23,0.2)]">+</div>
+								<div className="relative text-xl font-semibold text-white">Create New Project</div>
+								<div className="relative mt-3 max-w-xs text-sm leading-6 text-slate-500">Group related diagrams, workflows, and assets inside one polished project space.</div>
 							</button>
 						</div>
 					)}

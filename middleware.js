@@ -25,7 +25,11 @@ export function middleware(request) {
 
 	try {
 		const payload = token.split('.')[1];
-		const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+		let normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+		// Add padding to prevent atob from throwing DOMException
+		while (normalized.length % 4) {
+			normalized += '=';
+		}
 		JSON.parse(atob(normalized));
 		return NextResponse.next();
 	} catch {

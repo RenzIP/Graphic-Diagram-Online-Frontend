@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import Avatar from '../ui/Avatar.js';
 import BrandLogo, { BrandMark } from '../ui/BrandLogo.js';
@@ -44,15 +45,6 @@ export default function AppSidebar() {
 	const [workspaces, setWorkspaces] = useState([]);
 	const [showUserMenu, setShowUserMenu] = useState(false);
 
-	const initials = user?.full_name
-		? user.full_name
-				.split(' ')
-				.map((name) => name[0])
-				.join('')
-				.toUpperCase()
-				.slice(0, 2)
-		: (user?.email?.slice(0, 2).toUpperCase() ?? '??');
-
 	useEffect(() => {
 		if (!user) return;
 		workspacesApi
@@ -72,6 +64,20 @@ export default function AppSidebar() {
 		router.push('/login');
 	}
 
+	// Safely parse user in case it's wrapped or missing fields
+	const parsedUser = user?.data || user || {};
+	const displayName = parsedUser.name || parsedUser.full_name || 'User';
+	const displayEmail = parsedUser.email || parsedUser.username || 'No email';
+	
+	const initials = parsedUser.name || parsedUser.full_name
+		? (parsedUser.name || parsedUser.full_name)
+				.split(' ')
+				.map((n) => n[0])
+				.join('')
+				.toUpperCase()
+				.slice(0, 2)
+		: (parsedUser.email?.slice(0, 2).toUpperCase() ?? '??');
+
 	return (
 		<aside className="glass-panel flex h-screen w-[88px] flex-col border-r px-3 py-4 md:w-[288px] md:px-4">
 			<div className="mb-6 rounded-[1.75rem] border border-white/8 bg-white/5 p-3 md:p-4">
@@ -90,7 +96,7 @@ export default function AppSidebar() {
 						<NavLink href="/dashboard" active={pathname === '/dashboard'} icon={<SidebarIcon path="M4 6.75A1.75 1.75 0 0 1 5.75 5h3.5A1.75 1.75 0 0 1 11 6.75v3.5A1.75 1.75 0 0 1 9.25 12h-3.5A1.75 1.75 0 0 1 4 10.25zm9 0A1.75 1.75 0 0 1 14.75 5h3.5A1.75 1.75 0 0 1 20 6.75v3.5A1.75 1.75 0 0 1 18.25 12h-3.5A1.75 1.75 0 0 1 13 10.25zM4 15.75A1.75 1.75 0 0 1 5.75 14h12.5A1.75 1.75 0 0 1 20 15.75v2.5A1.75 1.75 0 0 1 18.25 20H5.75A1.75 1.75 0 0 1 4 18.25z" />}>Dashboard</NavLink>
 						<NavLink href="/team" active={pathname.startsWith('/team')} icon={<SidebarIcon path="M16 21v-1.5A3.5 3.5 0 0 0 12.5 16h-5A3.5 3.5 0 0 0 4 19.5V21m15-8.5a2.5 2.5 0 1 0-5 0 2.5 2.5 0 0 0 5 0ZM12 8.5a3.5 3.5 0 1 0-7 0 3.5 3.5 0 0 0 7 0Z" />}>Team Members</NavLink>
 						<NavLink href="/settings" active={pathname.startsWith('/settings')} icon={<SidebarIcon path="M12 3v2.25m0 13.5V21m8.25-9H18m-12 0H3.75m13.16-5.41-1.6 1.59M8.69 15.31l-1.6 1.6m9.82 0-1.6-1.6m-6.62-6.62-1.6-1.59M15.5 12A3.5 3.5 0 1 1 12 8.5 3.5 3.5 0 0 1 15.5 12Z" />}>Settings</NavLink>
-						{user?.role === 'admin' && (
+						{parsedUser?.role === 'admin' && (
 							<NavLink href="/admin" active={pathname.startsWith('/admin')} icon={<SidebarIcon path="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75" />}>Admin Panel</NavLink>
 						)}
 					</div>
@@ -139,8 +145,8 @@ export default function AppSidebar() {
 				<button className="flex w-full items-center justify-center gap-3 rounded-[1.35rem] border border-white/8 bg-white/5 p-3 text-left hover:border-white/14 hover:bg-white/10 md:justify-start" onClick={(e) => { e.stopPropagation(); setShowUserMenu((v) => !v); }}>
 					<Avatar size="md" initials={initials} />
 					<div className="hidden min-w-0 flex-1 md:block">
-						<div className="truncate text-sm font-semibold text-white">{user?.full_name || 'User'}</div>
-						<div className="truncate text-xs text-slate-500">{user?.email || 'No email'}</div>
+						<div className="truncate text-sm font-semibold text-white">{displayName}</div>
+						<div className="truncate text-xs text-slate-500">{displayEmail}</div>
 					</div>
 					<svg className={`hidden h-4 w-4 text-slate-500 transition-transform md:block ${showUserMenu ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m6 9 6 6 6-6" />
@@ -148,7 +154,7 @@ export default function AppSidebar() {
 				</button>
 				{showUserMenu ? (
 					<div className="glass-panel absolute bottom-full left-0 z-50 mb-3 w-full rounded-[1.35rem] p-2" onClick={(e) => e.stopPropagation()}>
-						<a href="/settings" className="block rounded-xl px-4 py-3 text-sm text-slate-200 hover:bg-white/8 hover:text-white">Account settings</a>
+						<Link href="/settings" className="block rounded-xl px-4 py-3 text-sm text-slate-200 hover:bg-white/8 hover:text-white" onClick={() => setShowUserMenu(false)}>Account settings</Link>
 						<button className="mt-1 block w-full rounded-xl px-4 py-3 text-left text-sm text-red-200 hover:bg-red-500/10 hover:text-red-100" onClick={handleLogout}>Sign out</button>
 					</div>
 				) : null}
