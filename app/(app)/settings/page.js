@@ -5,67 +5,49 @@ import AppSidebar from '../../../components/layout/AppSidebar.js';
 import Button from '../../../components/ui/Button.js';
 import Card from '../../../components/ui/Card.js';
 import { currentUserStore, updateProfile } from '../../../lib/stores/auth.js';
+import { preferencesStore } from '../../../lib/stores/preferences.js';
 import { useStore } from '../../../hooks/useStore.js';
 
 export default function SettingsPage() {
 	const user = useStore(currentUserStore());
+	const settings = useStore(preferencesStore);
 	const [isSaving, setIsSaving] = useState(false);
 	const [saveMessage, setSaveMessage] = useState('');
-	
+
 	const [profile, setProfile] = useState({
 		fullName: '',
 		username: ''
 	});
 
-	const [settings, setSettings] = useState({
-		theme: 'dark',
-		notifications: true,
-		autoSave: true,
-		gridSize: 20
-	});
+	const setSettings = (updater) => {
+		const next = typeof updater === 'function' ? updater(preferencesStore.get()) : updater;
+		preferencesStore.save(next);
+	};
 
 	useEffect(() => {
 		if (user) {
 			setProfile({
-				fullName: user.full_name || '',
+				fullName: user.name || user.full_name || '',
 				username: user.username || ''
 			});
 		}
 	}, [user]);
 
-	useEffect(() => {
-		const savedSettings = localStorage.getItem('user_settings');
-		if (savedSettings) {
-			try {
-				setSettings(JSON.parse(savedSettings));
-			} catch (e) {
-				console.error("Failed to parse settings", e);
-			}
-		}
-	}, []);
-
 	async function saveSettings() {
 		setIsSaving(true);
 		setSaveMessage('');
-		
+
 		try {
-			// Save preferences locally
-			localStorage.setItem('user_settings', JSON.stringify(settings));
-			
-			// Apply theme immediately
-			let theme = settings.theme;
-			if (theme === 'system') {
-				theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
-			}
-			if (theme === 'light') {
-				document.documentElement.setAttribute('data-theme', 'light');
-			} else {
-				document.documentElement.removeAttribute('data-theme');
-			}
-			
-			// Update profile on the backend
-			if (user && (profile.fullName !== user.full_name || profile.username !== user.username)) {
+			// Persist preferences through the shared store (updates localStorage
+			// and notifies the editor/grid/theme subscribers immediately).
+			preferencesStore.save(settings);
+
+			// Update profile on the backend. "name" is the display name used across
+			// the app (sidebar, dashboard); keep full_name in sync for legacy reads.
+			const currentName = user?.name || user?.full_name || '';
+			if (user && (profile.fullName !== currentName || profile.username !== user.username)) {
 				await updateProfile({
+					name: profile.fullName || null,
 					full_name: profile.fullName || null,
 					username: profile.username || null
 				});

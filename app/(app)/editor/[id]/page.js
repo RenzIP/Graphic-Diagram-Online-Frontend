@@ -18,6 +18,7 @@ import { DIAGRAM_TEMPLATES } from '../../../../lib/utils/templates.js';
 import { documentStore } from '../../../../lib/stores/document.js';
 import { historyStore } from '../../../../lib/stores/history.js';
 import { selectionStore } from '../../../../lib/stores/selection.js';
+import { getPreferences } from '../../../../lib/stores/preferences.js';
 import { wsClient } from '../../../../lib/ws/client.js';
 
 function EditorPageContent() {
@@ -63,6 +64,8 @@ function EditorPageContent() {
 	}, []);
 
 	const scheduleAutosave = useCallback((docId) => {
+		// Respect the user's Auto Save preference. Manual save (Ctrl+S) is unaffected.
+		if (!getPreferences().autoSave) return;
 		if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
 		autosaveTimer.current = setTimeout(() => performSave(docId), 3000);
 	}, [performSave]);

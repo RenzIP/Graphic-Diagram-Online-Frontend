@@ -1,22 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useStore } from '../../hooks/useStore.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
+import { preferencesStore } from '../../lib/stores/preferences.js';
 
 export default function Grid() {
 	const transform = useStore(canvasStore);
-	const [gridSize, setGridSize] = useState(20);
-
-	useEffect(() => {
-		const savedSettings = localStorage.getItem('user_settings');
-		if (savedSettings) {
-			try {
-				const s = JSON.parse(savedSettings);
-				if (s.gridSize) setGridSize(s.gridSize);
-			} catch (e) {}
-		}
-	}, []);
+	const { gridSize } = useStore(preferencesStore);
 
 	const patternSize = gridSize * transform.k;
 	const offsetX = transform.x % patternSize;
