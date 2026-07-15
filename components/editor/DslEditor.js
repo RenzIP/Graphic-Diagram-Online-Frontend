@@ -63,7 +63,10 @@ export default function DslEditor({ diagramType = 'flowchart', title = 'Untitled
 		try {
 			const currentState = documentStore.get();
 			const merged = mergeDSL(text, currentState);
-			documentStore.set(merged);
+			// replaceDocument (not set) so the DSL result syncs to collaborators:
+			// set() is a raw store write with no broadcast; replaceDocument swaps
+			// state, pushes history, and broadcasts replace_document.
+			documentStore.replaceDocument(merged);
 			setSyncStatus('synced');
 			setParseError(null);
 			const reSerialized = serializeToText(merged, diagramType, title);

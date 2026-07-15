@@ -138,12 +138,12 @@ function EditorPageContent() {
 			if (isCtrl && key === 'z') {
 				e.preventDefault();
 				const state = e.shiftKey ? historyStore.redo(documentStore.get()) : historyStore.undo(documentStore.get());
-				if (state) documentStore.set(state);
+				if (state) documentStore.syncDocument(state);
 			}
 			if (isCtrl && key === 'y') {
 				e.preventDefault();
 				const state = historyStore.redo(documentStore.get());
-				if (state) documentStore.set(state);
+				if (state) documentStore.syncDocument(state);
 			}
 			if (isCtrl && key === 's') {
 				e.preventDefault();

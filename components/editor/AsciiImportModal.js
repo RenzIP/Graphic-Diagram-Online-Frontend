@@ -24,8 +24,9 @@ export default function AsciiImportModal({ open, onClose }) {
 			}
 			
 			// Replace current document with the imported ASCII diagram
-			// (Alternatively, we could append it, but replace is simpler for "Import")
-			documentStore.set(parsed);
+			// (Alternatively, we could append it, but replace is simpler for "Import").
+			// replaceDocument pushes history and broadcasts to collaborators.
+			documentStore.replaceDocument(parsed);
 			
 			window.__gradiol_toast?.('ASCII Diagram imported successfully', 'success');
 			setText('');

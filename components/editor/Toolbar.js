@@ -50,12 +50,12 @@ export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart',
 
 	function handleUndo() {
 		const state = historyStore.undo(documentStore.get());
-		if (state) documentStore.set(state);
+		if (state) documentStore.syncDocument(state);
 	}
 
 	function handleRedo() {
 		const state = historyStore.redo(documentStore.get());
-		if (state) documentStore.set(state);
+		if (state) documentStore.syncDocument(state);
 	}
 
 	function handleSave() {
