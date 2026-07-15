@@ -55,31 +55,31 @@ export default function HuskyCharacter({
 	useEffect(() => {
 		if (isFocusedPassword) {
 			if (isPasswordVisible) {
-				// Peek (move apart and slightly down)
+				// Password visible: paws down (uncover eyes)
 				leftPawControls.start({
-					y: -40,
-					x: -25,
-					rotate: -20,
+					y: 0,
+					x: 0,
+					rotate: 0,
 					transition: { type: 'spring', stiffness: 200, damping: 15 }
 				});
 				rightPawControls.start({
-					y: -40,
-					x: 25,
-					rotate: 20,
+					y: 0,
+					x: 0,
+					rotate: 0,
 					transition: { type: 'spring', stiffness: 200, damping: 15 }
 				});
 			} else {
 				// Cover eyes (move up and together)
 				leftPawControls.start({
-					y: -75,
-					x: 5,
-					rotate: 15,
+					y: -60,
+					x: 15,
+					rotate: 10,
 					transition: { type: 'spring', stiffness: 200, damping: 15 }
 				});
 				rightPawControls.start({
-					y: -75,
-					x: -5,
-					rotate: -15,
+					y: -60,
+					x: -15,
+					rotate: -10,
 					transition: { type: 'spring', stiffness: 200, damping: 15 }
 				});
 			}
