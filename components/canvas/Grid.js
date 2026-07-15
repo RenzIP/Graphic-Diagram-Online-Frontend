@@ -1,14 +1,22 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useStore } from '../../hooks/useStore.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
-import { preferencesStore } from '../../lib/stores/preferences.js';
+import { preferencesStore, DEFAULT_PREFERENCES } from '../../lib/stores/preferences.js';
 
 export default function Grid() {
 	const transform = useStore(canvasStore);
 	const { gridSize } = useStore(preferencesStore);
+	const [mounted, setMounted] = useState(false);
 
-	const patternSize = gridSize * transform.k;
+	useEffect(() => {
+		setMounted(true);
+	}, []);
+
+	// Use default size during SSR/hydration to avoid mismatch, switch to custom size after mount
+	const activeGridSize = mounted ? gridSize : DEFAULT_PREFERENCES.gridSize;
+	const patternSize = activeGridSize * transform.k;
 	const offsetX = transform.x % patternSize;
 	const offsetY = transform.y % patternSize;
 	return (

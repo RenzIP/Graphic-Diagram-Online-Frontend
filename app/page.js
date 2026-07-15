@@ -62,7 +62,7 @@ export default function HomePage() {
 						</p>
 						<div className="mt-10 flex flex-col gap-4 sm:flex-row">
 							<Button variant="primary" size="lg" href="/dashboard" className="px-7">Launch dashboard</Button>
-							<Button variant="outline" size="lg" href="/demo" className="px-7">Explore demo</Button>
+							<Button variant="outline" size="lg" href="/dashboard" className="px-7">Explore demo</Button>
 						</div>
 						<div className="mt-10 grid gap-4 sm:grid-cols-3">
 							{stats.map(([label, value]) => (

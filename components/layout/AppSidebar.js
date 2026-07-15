@@ -143,10 +143,10 @@ export default function AppSidebar() {
 
 			<div className="relative mt-6 border-t border-white/8 pt-4">
 				<button className="flex w-full items-center justify-center gap-3 rounded-[1.35rem] border border-white/8 bg-white/5 p-3 text-left hover:border-white/14 hover:bg-white/10 md:justify-start" onClick={(e) => { e.stopPropagation(); setShowUserMenu((v) => !v); }}>
-					<Avatar size="md" initials={initials} />
+					<Avatar size="md" initials={user ? initials : 'G'} />
 					<div className="hidden min-w-0 flex-1 md:block">
-						<div className="truncate text-sm font-semibold text-white">{displayName}</div>
-						<div className="truncate text-xs text-slate-500">{displayEmail}</div>
+						<div className="truncate text-sm font-semibold text-white">{user ? displayName : 'Guest Mode'}</div>
+						<div className="truncate text-xs text-slate-500">{user ? displayEmail : 'Demo Workspace'}</div>
 					</div>
 					<svg className={`hidden h-4 w-4 text-slate-500 transition-transform md:block ${showUserMenu ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
 						<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m6 9 6 6 6-6" />
@@ -154,8 +154,17 @@ export default function AppSidebar() {
 				</button>
 				{showUserMenu ? (
 					<div className="glass-panel absolute bottom-full left-0 z-50 mb-3 w-full rounded-[1.35rem] p-2" onClick={(e) => e.stopPropagation()}>
-						<Link href="/settings" className="block rounded-xl px-4 py-3 text-sm text-slate-200 hover:bg-white/8 hover:text-white" onClick={() => setShowUserMenu(false)}>Account settings</Link>
-						<button className="mt-1 block w-full rounded-xl px-4 py-3 text-left text-sm text-red-200 hover:bg-red-500/10 hover:text-red-100" onClick={handleLogout}>Sign out</button>
+						{user ? (
+							<>
+								<Link href="/settings" className="block rounded-xl px-4 py-3 text-sm text-slate-200 hover:bg-white/8 hover:text-white" onClick={() => setShowUserMenu(false)}>Account settings</Link>
+								<button className="mt-1 block w-full rounded-xl px-4 py-3 text-left text-sm text-red-200 hover:bg-red-500/10 hover:text-red-100" onClick={handleLogout}>Sign out</button>
+							</>
+						) : (
+							<>
+								<Link href="/login" className="block w-full rounded-xl px-4 py-3 text-left text-sm text-white hover:bg-white/8 text-center bg-indigo-600/50 hover:bg-indigo-600/70" onClick={() => setShowUserMenu(false)}>Log in</Link>
+								<Link href="/register" className="mt-1 block rounded-xl px-4 py-3 text-sm text-slate-200 hover:bg-white/8 hover:text-white text-center" onClick={() => setShowUserMenu(false)}>Create Account</Link>
+							</>
+						)}
 					</div>
 				) : null}
 			</div>
