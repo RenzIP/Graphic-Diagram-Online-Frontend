@@ -7,6 +7,7 @@ import Modal from '../ui/Modal.js';
 import AsciiImportModal from './AsciiImportModal.js';
 import ImportModal from './ImportModal.js';
 import PresenceBar from '../collaboration/PresenceBar.js';
+import ConnectionStatus from '../collaboration/ConnectionStatus.js';
 import { canvasStore } from '../../lib/stores/canvas.js';
 import { documentStore } from '../../lib/stores/document.js';
 import { historyStore } from '../../lib/stores/history.js';
@@ -123,6 +124,7 @@ export default function Toolbar({ title = 'Untitled', diagramType = 'flowchart',
 			</div>
 
 			<div className="flex items-center gap-3">
+				<ConnectionStatus />
 				<PresenceBar />
 				<div className="hidden items-center gap-1 rounded-2xl border border-white/8 bg-white/5 p-1.5 lg:flex">
 					<IconButton title="Import ASCII Diagram" onClick={() => setShowAsciiModal(true)}><Icon path="M4 7h16M7 12h10M9 17h6" /></IconButton>

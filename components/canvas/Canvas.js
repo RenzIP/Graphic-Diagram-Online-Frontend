@@ -230,17 +230,19 @@ export default function Canvas({ children, onSvgRef }) {
 						</g>
 					) : null}
 
-					{/* Remote Cursors */}
+					{/* Remote Cursors — counter-scaled by 1/k so they keep a constant
+					    on-screen size regardless of the current zoom level. */}
 					{Object.entries(collab?.cursors || {}).map(([userId, pos]) => {
 						const user = collab.users.find(u => u.id === userId);
 						if (!user) return null;
+						const label = user.name || user.id;
 						return (
-							<g key={userId} transform={`translate(${pos.x} ${pos.y})`} className="pointer-events-none transition-transform duration-75 ease-out">
+							<g key={userId} transform={`translate(${pos.x} ${pos.y}) scale(${1 / canvas.k})`} className="pointer-events-none transition-transform duration-75 ease-out">
 								{/* Cursor SVG icon */}
 								<path d="M0,0 L11,11 L4.8,11 L0,20 Z" fill={user.color} stroke="white" strokeWidth="1.5" />
 								{/* Name badge */}
-								<rect x="12" y="12" rx="4" width={(user.name || user.id).length * 7 + 10} height="20" fill={user.color} />
-								<text x="17" y="25" fontSize="10" fill="white" fontWeight="bold">{(user.name || user.id)}</text>
+								<rect x="12" y="12" rx="4" width={label.length * 7 + 10} height="20" fill={user.color} />
+								<text x="17" y="25" fontSize="10" fill="white" fontWeight="bold">{label}</text>
 							</g>
 						);
 					})}
