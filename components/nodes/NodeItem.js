@@ -46,16 +46,14 @@ export default function NodeItem({ node, children, isSelected }) {
 					newY = resize.nodePos.y + (resize.size.height - newHeight);
 				}
 				const data = { position: { x: newX, y: newY }, width: newWidth, height: newHeight };
-				documentStore.updateNode(node.id, data);
-				wsClient.send({ type: 'update_node', node_id: node.id, changes: data });
+				documentStore.updateNode(node.id, data); // updateNode broadcasts update_node
 				return;
 			}
 			if (!drag) return;
 			const dx = (event.clientX - drag.start.x) / canvas.k;
 			const dy = (event.clientY - drag.start.y) / canvas.k;
 			const data = { position: { x: drag.nodePos.x + dx, y: drag.nodePos.y + dy } };
-			documentStore.updateNode(node.id, data);
-			wsClient.send({ type: 'update_node', node_id: node.id, changes: data });
+			documentStore.updateNode(node.id, data); // updateNode broadcasts update_node
 		}
 		function onUp() {
 			if (drag || resize) {
@@ -173,7 +171,6 @@ export default function NodeItem({ node, children, isSelected }) {
 					<textarea autoFocus value={node.label || ''} onChange={(e) => {
 						const data = { label: e.target.value };
 						documentStore.updateNode(node.id, data);
-						wsClient.send({ type: 'update_node', node_id: node.id, changes: data });
 					}} onBlur={() => setIsEditing(false)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); setIsEditing(false); } }} className="h-full w-full resize-none rounded border-2 border-indigo-500 bg-slate-800 p-2 text-center text-sm text-white focus:outline-none" />
 				</foreignObject>
 			) : null}

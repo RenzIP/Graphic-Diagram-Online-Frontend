@@ -6,7 +6,6 @@ import Button from '../ui/Button.js';
 import { parseDSL } from '../../lib/dsl/parser.js';
 import { transformAST } from '../../lib/dsl/transformer.js';
 import { fromApiDocument, documentStore } from '../../lib/stores/document.js';
-import { wsClient } from '../../lib/ws/client.js';
 
 export default function ImportModal({ open, onClose }) {
 	const [error, setError] = useState(null);
@@ -45,8 +44,7 @@ export default function ImportModal({ open, onClose }) {
 				}
 
 				if (parsedState) {
-					documentStore.set(parsedState);
-					wsClient.send({ type: 'room_state', state: parsedState });
+					documentStore.replaceDocument(parsedState);
 					window.__gradiol_toast?.('Document imported successfully', 'success');
 					onClose();
 				}

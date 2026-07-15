@@ -5,7 +5,6 @@ import { useParams } from 'next/navigation';
 import { documentsApi } from '../../lib/api/documents.js';
 import { documentStore } from '../../lib/stores/document.js';
 import Button from '../ui/Button.js';
-import { wsClient } from '../../lib/ws/client.js';
 
 export default function VersionHistory({ visible, onClose }) {
 	const params = useParams();
@@ -49,9 +48,10 @@ export default function VersionHistory({ visible, onClose }) {
 			const res = await documentsApi.restoreVersion(id, versionNum);
 			const restoredDoc = res.data?.data;
 			if (restoredDoc) {
-				documentStore.set({ nodes: restoredDoc.content.nodes || [], edges: restoredDoc.content.edges || [] });
+				// replaceDocument swaps state, resets history, and broadcasts the
+				// whole doc to collaborators via replace_document.
+				documentStore.replaceDocument({ nodes: restoredDoc.content.nodes || [], edges: restoredDoc.content.edges || [] });
 				window.__gradiol_toast?.(`Restored to version ${versionNum}`, 'success');
-				wsClient.send({ type: 'room_state', state: documentStore.get() });
 				onClose();
 			}
 		} catch (err) {
